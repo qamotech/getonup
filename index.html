@@ -54,7 +54,8 @@ input[type=time],input[type=text],input[type=number],select{width:100%;backgroun
 .knob:before{content:"";position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
 .switch input:checked + .knob{background:var(--good)}
 .switch input:checked + .knob:before{left:27px}
-.iconbtn{background:none;border:none;color:var(--muted);font-size:19px;padding:6px}
+.iconbtn{background:none;border:none;color:var(--muted);font-size:19px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer}
+.iconbtn .il{font-size:9px;font-weight:700;letter-spacing:.03em;color:var(--muted)}
 .streak{font-size:40px;text-align:center}
 .streak b{color:var(--accent)}
 .logitem{display:flex;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-top:7px;font-size:14px}
@@ -81,7 +82,7 @@ input[type=time],input[type=text],input[type=number],select{width:100%;backgroun
 .cycle{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:11px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:15px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;background:var(--good);color:#06280f;font-weight:800;padding:12px 20px;border-radius:99px;z-index:300;display:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,16,32,.96);border-top:1px solid var(--border);display:flex;z-index:50;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
-nav button{flex:1;background:none;border:none;color:var(--muted);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button{flex:1;min-width:0;background:none;border:none;color:var(--muted);font-size:10.5px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px}
 nav button .ni{font-size:21px}
 nav button.on{color:var(--accent)}
 .page{display:none}.page.on{display:block}
@@ -131,7 +132,7 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
 @keyframes popUp{from{transform:translateY(46px);opacity:.4}to{transform:translateY(0);opacity:1}}
 .pop .sheetHead{position:sticky;top:0;background:#0d1430;display:flex;align-items:center;justify-content:space-between;padding:10px 2px;z-index:2}
 .pop .sheetHead b{font-size:19px}
-.pop .x{background:#232c52;color:#fff;border:1px solid #2b3a6e;border-radius:50%;width:38px;height:38px;font-size:17px;cursor:pointer}
+.pop .x{background:#232c52;color:#fff;border:1px solid #2b3a6e;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}
 .pop .card{margin:10px 0}
 body.popLock{overflow:hidden}
 </style>
@@ -488,7 +489,7 @@ $$("nav button").forEach(b=>b.onclick=()=>{$$("nav button").forEach(x=>x.classLi
 /* ---------- ALARM LIST ---------- */
 function renderAlarms(){alarms.sort((x,y)=>x.time.localeCompare(y.time));const el=$("#alarmList");if(!alarms.length){el.innerHTML='<p class="small">No alarms yet — tap Add Alarm.</p>';return}
  el.innerHTML=alarms.map(a=>`<div class="alarm ${a.on?"":"off"}"><div><div class="atime">${fmt12(a.time)}</div><div class="alabel">${a.label||"Alarm"} · ${a.days.length===7?"Every day":a.days.map(d=>DAYFULL[d]).join(" ")}<br>${SOUNDS.find(s=>s.id===a.sound).name.split("—")[0]} ${a.mission!=="none"?"· 🧮 mission":""} · snooze ×${a.snoozeMax}${a.skipNext?" · ⏭️ <b style='color:var(--accent)'>next skipped</b>":""}</div></div>
- <button class="iconbtn" data-dup="${a.id}" title="Duplicate">📄</button><button class="iconbtn" data-skip="${a.id}" title="Skip next">⏭️</button><button class="iconbtn" data-edit="${a.id}">✏️</button>
+ <button class="iconbtn" data-dup="${a.id}" title="Duplicate"><span>📄</span><span class="il">Copy</span></button><button class="iconbtn" data-skip="${a.id}" title="Skip next"><span>⏭️</span><span class="il">Skip</span></button><button class="iconbtn" data-edit="${a.id}"><span>✏️</span><span class="il">Edit</span></button>
  <label class="switch"><input type="checkbox" data-toggle="${a.id}" ${a.on?"checked":""}><span class="knob"></span></label></div>`).join("");
  el.querySelectorAll("[data-toggle]").forEach(t=>t.onchange=()=>{const a=alarms.find(x=>x.id==t.dataset.toggle);a.on=t.checked;saveAll();renderAlarms();toast(a.on?"Alarm ON ⏰":"Alarm off")});
  el.querySelectorAll("[data-dup]").forEach(t=>t.onclick=()=>{const a=alarms.find(x=>x.id==t.dataset.dup);alarms.push({...a,id:Date.now(),label:(a.label||"Alarm")+" (copy)"});saveAll();renderAlarms();toast("Alarm duplicated 📄")});
@@ -520,7 +521,7 @@ $("#btnTestBoost").onclick=()=>{toast("Volume check in 3… get ready 🔊");set
 /* timeline */
 const STEPS=[["🌅","Wake up",0],["🚿","Shower & freshen up",10],["👕","Get dressed",10],["🍳","Breakfast & coffee",15],["🎒","Bag, keys, lunch check",10],["🚗","Out the door",5]];
 function renderTimeline(){const leave=settings.leave;let[h,m]=leave.split(":").map(Number);const leaveMin=h*60+m;let acc=0;
- $("#timeline").innerHTML=STEPS.map((s,i)=>{const t=leaveMin-(STEPS.slice(i).reduce((a,x)=>a+x[2],0));const hh=((Math.floor(t/60)%24)+24)%24,mm=((t%60)+60)%60;return `<div class="tstep" data-step="${i}"><span>${s[0]}</span><span style="flex:1">${s[1]}</span><b>${fmt12(String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"))}</b><button class="iconbtn" data-done="${i}">✔️</button></div>`}).join("");
+ $("#timeline").innerHTML=STEPS.map((s,i)=>{const t=leaveMin-(STEPS.slice(i).reduce((a,x)=>a+x[2],0));const hh=((Math.floor(t/60)%24)+24)%24,mm=((t%60)+60)%60;return `<div class="tstep" data-step="${i}"><span>${s[0]}</span><span style="flex:1">${s[1]}</span><b>${fmt12(String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"))}</b><button class="iconbtn" data-done="${i}"><span>✔️</span><span class="il">Done</span></button></div>`}).join("");
  $$("#timeline [data-done]").forEach(b=>b.onclick=()=>b.parentElement.classList.toggle("done"))}
 renderTimeline();
 /* ---------- CLOCK / COUNTDOWNS / SCHEDULER ---------- */
@@ -667,7 +668,7 @@ $("#btnRedshift").onclick=()=>{settings.redManual=!document.body.classList.conta
 /* paced routine + running late */
 let lateFactor=1,routineTimer=null;
 $("#btnLate").onclick=()=>{lateFactor=lateFactor===1?0.5:1;renderTimeline();$("#routineMsg").textContent=lateFactor<1?"🏃 RUNNING LATE MODE: routine compressed to essentials — skip the long steps, out the door counts.":"Running late mode off.";toast(lateFactor<1?"🏃 Late mode ON — compressed":"Late mode off")};
-const _rt=renderTimeline;renderTimeline=function(){const leave=settings.leave;let[h,m]=leave.split(":").map(Number);const leaveMin=h*60+m;$("#timeline").innerHTML=STEPS.map((s,i)=>{const t=leaveMin-Math.round(STEPS.slice(i).reduce((a,x)=>a+x[2],0)*lateFactor);const hh=((Math.floor(t/60)%24)+24)%24,mm=((t%60)+60)%60;return `<div class="tstep" data-step="${i}"><span>${s[0]}</span><span style="flex:1">${s[1]}${lateFactor<1&&s[2]>10?" (short)":""}</span><b>${fmt12(String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"))}</b><button class="iconbtn" data-done="${i}">✔️</button></div>`}).join("");$$("#timeline [data-done]").forEach(b=>b.onclick=()=>b.parentElement.classList.toggle("done"))};renderTimeline();
+const _rt=renderTimeline;renderTimeline=function(){const leave=settings.leave;let[h,m]=leave.split(":").map(Number);const leaveMin=h*60+m;$("#timeline").innerHTML=STEPS.map((s,i)=>{const t=leaveMin-Math.round(STEPS.slice(i).reduce((a,x)=>a+x[2],0)*lateFactor);const hh=((Math.floor(t/60)%24)+24)%24,mm=((t%60)+60)%60;return `<div class="tstep" data-step="${i}"><span>${s[0]}</span><span style="flex:1">${s[1]}${lateFactor<1&&s[2]>10?" (short)":""}</span><b>${fmt12(String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"))}</b><button class="iconbtn" data-done="${i}"><span>✔️</span><span class="il">Done</span></button></div>`}).join("");$$("#timeline [data-done]").forEach(b=>b.onclick=()=>b.parentElement.classList.toggle("done"))};renderTimeline();
 $("#btnRoutine").onclick=()=>{let idx=0;const run=()=>{if(idx>=STEPS.length){$("#routineMsg").textContent="🚗 Routine done — OUT THE DOOR!";volumeCheck(()=>{});return}const[nameS]=[STEPS[idx][1]];const dur=Math.max(1,Math.round(STEPS[idx][2]*lateFactor));$("#routineMsg").innerHTML="▶ <b>"+STEPS[idx][0]+" "+nameS+"</b> — "+dur+" min";toast("Routine: "+nameS);routineTimer=setTimeout(()=>{idx++;volumeCheck(()=>{});run()},dur*60000)};if(routineTimer){clearTimeout(routineTimer);routineTimer=null;$("#routineMsg").textContent="Routine stopped."}else run()}; 
 renderStats();
 
@@ -705,7 +706,7 @@ Object.entries(GROUPS).forEach(([key,g])=>{
  const sheet=document.createElement('div');sheet.className='sheet';
  const head=document.createElement('div');head.className='sheetHead';
  head.innerHTML='<b>'+g.title+'</b>';
- const x=document.createElement('button');x.className='x';x.textContent='✕';x.setAttribute('aria-label','Close');
+ const x=document.createElement('button');x.className='x';x.textContent='✕ Close';x.setAttribute('aria-label','Close');
  head.appendChild(x);sheet.appendChild(head);
  const bodyBox=document.createElement('div');
  g.items.forEach(fn=>{try{const el=fn();if(el)bodyBox.appendChild(el);}catch(e){}});
