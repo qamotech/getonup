@@ -115,6 +115,15 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
     <div class="next" id="nextAlarm">No alarms on</div>
   </div>
 
+  <div class="card" id="glanceWidget" style="border-color:var(--accent)">
+    <h2>📌 At a Glance</h2>
+    <div id="glanceBody" class="small" style="font-size:15px;line-height:1.9"></div>
+    <div class="row">
+      <button class="btn smallb" id="btnGlanceBoost">🔊 Test volume boost</button>
+      <button class="btn smallb" id="btnGlanceSkip">⏭️ Skip next alarm</button>
+    </div>
+  </div>
+
   <div class="installbox" id="installBox">
     <h2>📲 Install GetOnUp</h2>
     <p class="small" style="margin:6px 0 4px">Put GetOnUp on your home screen — works like a real app, offline too.</p>
@@ -481,6 +490,7 @@ function tick(){const now=new Date();
  $("#clock").textContent=now.toLocaleTimeString([], {hour:"numeric",minute:"2-digit",second:"2-digit"});
  $("#dateLine").textContent=now.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"});
  const{date,alarm}=nextAlarmDate();
+ const gEl=$("#glanceBody");if(gEl){const lv2=new Date(now);const[lh2,lm2]=settings.leave.split(":").map(Number);lv2.setHours(lh2,lm2,0,0);if(lv2<now)lv2.setDate(lv2.getDate()+1);gEl.innerHTML=`⏰ <b>Next alarm:</b> ${date?fmt12(alarm.time)+" — "+(alarm.label||"Alarm"):"none on"}${alarm&&alarm.skipNext?" ⏭️ skipped":""}<br>🌙 <b>Bedtime:</b> ${fmt12(settings.bedtime)} (in ${msToHMS((()=>{const b=new Date(now);const[x,y]=settings.bedtime.split(":").map(Number);b.setHours(x,y,0,0);if(b<now)b.setDate(b.getDate()+1);return b-now})())})<br>🚗 <b>Leave by:</b> ${fmt12(settings.leave)} (in ${msToHMS(lv2-now)})<br>🔥 <b>Streak:</b> ${streak.count} day${streak.count===1?"":"s"} · 😴 <b>Log entries:</b> ${log.length}`}
  $("#nextAlarm").innerHTML=date?`Next alarm: <b>${alarm.label||"Alarm"} · ${fmt12(alarm.time)}</b> (${alarm.skipNext?"⏭️ will be skipped":msToHMS(date-now)+" away"})`:"No alarms on — add one in Alarms ⏰";
  /* bedtime countdown */
  const bt=new Date(now);const[bh,bm]=settings.bedtime.split(":").map(Number);bt.setHours(bh,bm,0,0);if(bt<now)bt.setDate(bt.getDate()+1);
@@ -619,6 +629,8 @@ const _rt=renderTimeline;renderTimeline=function(){const leave=settings.leave;le
 $("#btnRoutine").onclick=()=>{let idx=0;const run=()=>{if(idx>=STEPS.length){$("#routineMsg").textContent="🚗 Routine done — OUT THE DOOR!";volumeCheck(()=>{});return}const[nameS]=[STEPS[idx][1]];const dur=Math.max(1,Math.round(STEPS[idx][2]*lateFactor));$("#routineMsg").innerHTML="▶ <b>"+STEPS[idx][0]+" "+nameS+"</b> — "+dur+" min";toast("Routine: "+nameS);routineTimer=setTimeout(()=>{idx++;volumeCheck(()=>{});run()},dur*60000)};if(routineTimer){clearTimeout(routineTimer);routineTimer=null;$("#routineMsg").textContent="Routine stopped."}else run()}; 
 renderStats();
 
+$("#btnGlanceBoost").onclick=()=>$("#btnTestBoost").click();
+$("#btnGlanceSkip").onclick=()=>{const{alarm}=nextAlarmDate();if(alarm){alarm.skipNext=!alarm.skipNext;saveAll();renderAlarms();toast(alarm.skipNext?"⏭️ Next alarm skipped":"Skip cancelled")}else toast("No alarm is on")};
 renderAlarms();renderLog();
 </script>
 </body>
