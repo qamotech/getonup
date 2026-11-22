@@ -104,7 +104,7 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
 </head>
 <body>
 <div id="glow"></div>
-<header><div class="logo">⏰</div><div><h1>Get<span>On</span>Up</h1><div class="tag">The alarm that gets you UP 👍🏾</div></div><div style="margin-left:auto;font-size:22px">🔥 <b id="streakTop">0</b></div></header>
+<header><img src="logo.png" alt="GetOnUp logo" style="width:46px;height:46px;border-radius:12px"><div><h1>Get<span>On</span>Up</h1><div class="tag">The alarm that gets you UP 👍🏾</div></div><div style="margin-left:auto;font-size:22px">🔥 <b id="streakTop">0</b></div></header>
 
 <main>
 <!-- HOME -->
@@ -199,7 +199,7 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
   <div class="card">
     <h2>📅 Schedule Sets</h2>
     <p class="small">One tap builds a full set. Great for shift work.</p>
-    <button class="btn" data-set="weekday">💼 Weekday Set — Mon–Fri · 2:00 AM (Arc Beverage shift)</button>
+    <button class="btn" data-set="weekday">💼 Weekday Set — Mon–Fri · 6:00 AM</button>
     <button class="btn" data-set="weekend">🌴 Weekend Set — Sat–Sun · 7:30 AM</button>
     <button class="btn" data-set="daily">📆 Every Day — 5:00 AM</button>
     <p class="small" style="margin-top:8px">Each alarm also has a <b>Skip next</b> button — tap it on a day off and that one firing is skipped, then it turns itself back on.</p>
@@ -220,11 +220,11 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
     <h2>😴 Sleep-Cycle Smart Set</h2>
     <p class="small">Sleep runs in ~90-minute cycles. Wake at the <b>end</b> of a cycle and you get up clear instead of groggy. We add 14 minutes to fall asleep.</p>
     <label>I need to wake up at</label>
-    <input type="time" id="cycleWake" value="02:00">
+    <input type="time" id="cycleWake" value="06:00">
     <button class="btn primary" id="btnCyclesFromWake">🌙 What time should I go to bed?</button>
     <div id="cycleOut1"></div>
     <label style="margin-top:16px">I'm going to bed at</label>
-    <input type="time" id="cycleBed" value="21:30">
+    <input type="time" id="cycleBed" value="22:00">
     <button class="btn primary" id="btnCyclesFromBed">🌅 What time should I wake up?</button>
     <div id="cycleOut2"></div>
   </div>
@@ -321,7 +321,7 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
 <section class="page" id="page-help">
   <div class="card">
     <h2>❓ How GetOnUp Works</h2>
-    <div class="help"><b>Keep GetOnUp open (or recently opened) and your media volume UP.</b> A web app cannot change your phone's system volume and can't ring reliably if the phone kills the browser completely — that's true for every web alarm. For your 3 AM shift, open GetOnUp at bedtime and leave it on the charger. 👍🏾</div>
+    <div class="help"><b>Keep GetOnUp open (or recently opened) and your media volume UP.</b> A web app cannot change your phone's system volume and can't ring reliably if the phone kills the browser completely — that's true for every web alarm. For an early shift, open GetOnUp at bedtime and leave it on the charger. 👍🏾</div>
     <h3>📲 Installing</h3>
     <p class="small"><b>Android:</b> tap “Install on Android” and accept the prompt (or Chrome menu ⋮ → Install app).<br><b>iPhone:</b> Safari → Share ⬆️ → “Add to Home Screen” → Add.</p>
     <h3>🔊 Sounds</h3>
@@ -344,7 +344,7 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
 <!-- EDITOR -->
 <div class="modal" id="editor"><div class="sheet">
   <h2 id="edTitle">New Alarm</h2>
-  <label>Time</label><input type="time" id="edTime" value="02:00">
+  <label>Time</label><input type="time" id="edTime" value="06:00">
   <label>Label</label><input type="text" id="edLabel" placeholder="e.g. Get up for work">
   <label>Repeat days</label><div class="days" id="edDays"></div>
   <label>Sound</label><select id="edSound"></select>
@@ -381,8 +381,8 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
 "use strict";
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const LS={get(k,d){try{const v=localStorage.getItem("getonup_"+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem("getonup_"+k,JSON.stringify(v))}catch(e){}}};
-let alarms=LS.get("alarms",[{id:1,time:"02:00",label:"Get up — Arc Beverage shift",days:[1,2,3,4,5],sound:"energize",mission:"math",snoozeMax:2,on:true,skipNext:false,group:"Weekday"}]);
-let settings=LS.get("settings",{bedtime:"21:30",leave:"02:20",fade:10});
+let alarms=LS.get("alarms",[{id:1,time:"06:00",label:"Get up for work",days:[1,2,3,4,5],sound:"energize",mission:"math",snoozeMax:2,on:true,skipNext:false,group:"Weekday"}]);
+let settings=LS.get("settings",{bedtime:"22:00",leave:"07:30",fade:10});
 settings=Object.assign({vol:100,glowMin:5,diff:"easy",flash:"off",vib:"standard",accent:"gold",large:false,checks:{}},settings);
 let log=LS.get("log",[]); let streak=LS.get("streak",{count:0,last:""});
 let editId=null, deferredPrompt=null, audioCtx=null, ringState=null, snoozeTimer=null;
@@ -448,18 +448,18 @@ let edDays=new Set([1,2,3,4,5]);
 function renderEdDays(){$("#edDays").innerHTML=DAYFULL.map((d,i)=>`<button class="day ${edDays.has(i)?"on":""}" data-d="${i}">${DAYN[i]}</button>`).join("");$$("#edDays .day").forEach(b=>b.onclick=e=>{e.preventDefault();const d=+b.dataset.d;edDays.has(d)?edDays.delete(d):edDays.add(d);renderEdDays()})}
 function openEditor(id){editId=id||null;$("#edSound").innerHTML=SOUNDS.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")+'<option value="rotate">🔀 Rotate daily (never get used to it)</option>';
  if(id){const a=alarms.find(x=>x.id===id);$("#edTitle").textContent="Edit Alarm";$("#edTime").value=a.time;$("#edLabel").value=a.label;$("#edSound").value=a.sound;$("#edMission").value=a.mission;$("#edSnooze").value=String(a.snoozeMax);edDays=new Set(a.days);$("#btnDeleteAlarm").style.display="block"}
- else{$("#edTitle").textContent="New Alarm";$("#edTime").value="02:00";$("#edLabel").value="";$("#edMission").value="math";$("#edSnooze").value="2";edDays=new Set([1,2,3,4,5]);$("#btnDeleteAlarm").style.display="none"}
+ else{$("#edTitle").textContent="New Alarm";$("#edTime").value="06:00";$("#edLabel").value="";$("#edMission").value="math";$("#edSnooze").value="2";edDays=new Set([1,2,3,4,5]);$("#btnDeleteAlarm").style.display="none"}
  renderEdDays();$("#editor").classList.add("open")}
 $("#btnAdd").onclick=()=>openEditor(null);
 $("#btnCancelEdit").onclick=()=>{$("#editor").classList.remove("open");stopSound()};
 $("#btnPreview").onclick=()=>previewSound($("#edSound").value);
-$("#btnSaveAlarm").onclick=()=>{const data={time:$("#edTime").value||"02:00",label:$("#edLabel").value.trim(),days:[...edDays].sort(),sound:$("#edSound").value,mission:$("#edMission").value,snoozeMax:+$("#edSnooze").value,on:true,skipNext:false};
+$("#btnSaveAlarm").onclick=()=>{const data={time:$("#edTime").value||"06:00",label:$("#edLabel").value.trim(),days:[...edDays].sort(),sound:$("#edSound").value,mission:$("#edMission").value,snoozeMax:+$("#edSnooze").value,on:true,skipNext:false};
  if(!data.days.length){toast("Pick at least one day");return}
  if(editId){Object.assign(alarms.find(x=>x.id===editId),data)}else{alarms.push({id:Date.now(),...data})}
  saveAll();renderAlarms();$("#editor").classList.remove("open");stopSound();toast("Alarm saved 👍🏾")};
 $("#btnDeleteAlarm").onclick=()=>{alarms=alarms.filter(x=>x.id!==editId);saveAll();renderAlarms();$("#editor").classList.remove("open");toast("Alarm deleted")};
 /* schedule sets */
-$$("[data-set]").forEach(b=>b.onclick=()=>{const k=b.dataset.set;const sets={weekday:{time:"02:00",label:"Get up — Arc Beverage shift",days:[1,2,3,4,5],group:"Weekday"},weekend:{time:"07:30",label:"Weekend wake-up",days:[0,6],group:"Weekend"},daily:{time:"05:00",label:"Daily wake-up",days:[0,1,2,3,4,5,6],group:"Daily"}};const s=sets[k];alarms.push({id:Date.now(),time:s.time,label:s.label,days:s.days,sound:"energize",mission:"math",snoozeMax:2,on:true,skipNext:false,group:s.group});saveAll();renderAlarms();toast(s.group+" set added 👍🏾");document.querySelector('[data-page="alarms"]').click()});
+$$("[data-set]").forEach(b=>b.onclick=()=>{const k=b.dataset.set;const sets={weekday:{time:"06:00",label:"Get up for work",days:[1,2,3,4,5],group:"Weekday"},weekend:{time:"07:30",label:"Weekend wake-up",days:[0,6],group:"Weekend"},daily:{time:"05:00",label:"Daily wake-up",days:[0,1,2,3,4,5,6],group:"Daily"}};const s=sets[k];alarms.push({id:Date.now(),time:s.time,label:s.label,days:s.days,sound:"energize",mission:"math",snoozeMax:2,on:true,skipNext:false,group:s.group});saveAll();renderAlarms();toast(s.group+" set added 👍🏾");document.querySelector('[data-page="alarms"]').click()});
 /* ---------- SETTINGS ---------- */
 $("#bedtimeInput").value=settings.bedtime;$("#leaveInput").value=settings.leave;$("#fadeSel").value=String(settings.fade);
 $("#bedtimeInput").onchange=e=>{settings.bedtime=e.target.value;saveAll();toast("Bedtime saved 🌙")};
