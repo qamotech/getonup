@@ -159,7 +159,7 @@ body.popLock{overflow:hidden}
   </div>
 
   <div class="card" id="glanceWidget" style="border-color:var(--accent)">
-    <h2>📌 At a Glance</h2>
+    <h2>📌 At a Glance <select id="glanceStyleSel" style="float:right;background:#232c52;color:#fff;border:1px solid #2b3a6e;border-radius:8px;padding:4px 6px;font-size:13px"><option value="full">Style: Full</option><option value="compact">Style: Compact</option><option value="focus">Style: Focus</option><option value="tonight">Style: Tonight</option></select></h2>
     <div id="glanceBody" class="small" style="font-size:15px;line-height:1.9"></div>
     <div class="row">
       <button class="btn smallb" id="btnGlanceBoost">🔊 Test volume boost</button>
@@ -533,7 +533,7 @@ function tick(){const now=new Date();
  $("#clock").textContent=now.toLocaleTimeString([], {hour:"numeric",minute:"2-digit",second:"2-digit"});
  $("#dateLine").textContent=now.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"});
  const{date,alarm}=nextAlarmDate();
- const gEl=$("#glanceBody");if(gEl){const lv2=new Date(now);const[lh2,lm2]=settings.leave.split(":").map(Number);lv2.setHours(lh2,lm2,0,0);if(lv2<now)lv2.setDate(lv2.getDate()+1);gEl.innerHTML=`⏰ <b>Next alarm:</b> ${date?fmt12(alarm.time)+" — "+(alarm.label||"Alarm"):"none on"}${alarm&&alarm.skipNext?" ⏭️ skipped":""}<br>🌙 <b>Bedtime:</b> ${fmt12(settings.bedtime)} (in ${msToHMS((()=>{const b=new Date(now);const[x,y]=settings.bedtime.split(":").map(Number);b.setHours(x,y,0,0);if(b<now)b.setDate(b.getDate()+1);return b-now})())})<br>🚗 <b>Leave by:</b> ${fmt12(settings.leave)} (in ${msToHMS(lv2-now)})<br>🔥 <b>Streak:</b> ${streak.count} day${streak.count===1?"":"s"} · 😴 <b>Log entries:</b> ${log.length}`}
+ const gEl=$("#glanceBody");if(gEl){const lv2=new Date(now);const[lh2,lm2]=settings.leave.split(":").map(Number);lv2.setHours(lh2,lm2,0,0);if(lv2<now)lv2.setDate(lv2.getDate()+1);const bd2=(()=>{const b=new Date(now);const[x,y]=settings.bedtime.split(":").map(Number);b.setHours(x,y,0,0);if(b<now)b.setDate(b.getDate()+1);return b})();const gs=localStorage.getItem("gouGlanceStyle")||"full";const nxTxt=date?fmt12(alarm.time)+" — "+(alarm.label||"Alarm"):"none on";if(gs==="compact"){gEl.innerHTML=`⏰ <b>${nxTxt}</b>${alarm&&alarm.skipNext?" ⏭️":""} · 🔥 ${streak.count} · 🚗 leave ${fmt12(settings.leave)}`}else if(gs==="focus"){gEl.innerHTML=date?`<div style="text-align:center;padding:4px 0"><div style="font-size:15px;color:var(--muted)">${alarm.label||"Next alarm"}${alarm.skipNext?" ⏭️ skipped":""}</div><div style="font-size:40px;font-weight:900;line-height:1.1">${fmt12(alarm.time)}</div><div style="font-size:16px">⏳ rings in ${msToHMS(date-now)}</div></div>`:`<div style="text-align:center;font-size:17px">⏰ No alarms on</div>`}else if(gs==="tonight"){gEl.innerHTML=`🌙 <b>Bedtime:</b> ${fmt12(settings.bedtime)} (in ${msToHMS(bd2-now)})<br>☕ <b>Caffeine cutoff:</b> ${fmt12(new Date(bd2.getTime()-9*3600*1000).toTimeString().slice(0,5))}<br>🚗 <b>Leave by:</b> ${fmt12(settings.leave)} (in ${msToHMS(lv2-now)})<br>⏰ <b>Wake:</b> ${nxTxt}`}else{gEl.innerHTML=`⏰ <b>Next alarm:</b> ${nxTxt}${alarm&&alarm.skipNext?" ⏭️ skipped":""}<br>🌙 <b>Bedtime:</b> ${fmt12(settings.bedtime)} (in ${msToHMS(bd2-now)})<br>🚗 <b>Leave by:</b> ${fmt12(settings.leave)} (in ${msToHMS(lv2-now)})<br>🔥 <b>Streak:</b> ${streak.count} day${streak.count===1?"":"s"} · 😴 <b>Log entries:</b> ${log.length}`}}
  $("#nextAlarm").innerHTML=date?`Next alarm: <b>${alarm.label||"Alarm"} · ${fmt12(alarm.time)}</b> (${alarm.skipNext?"⏭️ will be skipped":msToHMS(date-now)+" away"})`:"No alarms on — add one in Alarms ⏰";
  /* bedtime countdown */
  const bt=new Date(now);const[bh,bm]=settings.bedtime.split(":").map(Number);bt.setHours(bh,bm,0,0);if(bt<now)bt.setDate(bt.getDate()+1);
@@ -757,5 +757,6 @@ $$('nav [data-page]').forEach(b=>{
 });
 })();
 </script>
+<script>(function(){var s=document.getElementById('glanceStyleSel');if(!s)return;s.value=localStorage.getItem('gouGlanceStyle')||'full';s.onchange=function(){localStorage.setItem('gouGlanceStyle',s.value);if(window.tick)tick();};})();</script>
 </body>
 </html>
