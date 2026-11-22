@@ -100,9 +100,36 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
 .badge{font-size:30px;opacity:.25;filter:grayscale(1);text-align:center}
 .badge.earned{opacity:1;filter:none}
 .badge small{display:block;font-size:11px;color:var(--muted)}
+
+/* ===== Opening sequence ===== */
+#splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(120% 120% at 50% 30%,#16265e 0%,#0a1453 55%,#050a33 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow:hidden;transition:opacity .45s ease,visibility .45s}
+#splash.gone{opacity:0;visibility:hidden;pointer-events:none}
+#splash .rays{position:absolute;width:150vmax;height:150vmax;left:50%;top:42%;transform:translate(-50%,-50%);background:repeating-conic-gradient(from 0deg,rgba(245,197,66,.13) 0deg 9deg,transparent 9deg 18deg);border-radius:50%;animation:splashSpin 14s linear infinite}
+@keyframes splashSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+#splash .logoWrap{position:relative;animation:splashPop .7s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes splashPop{0%{transform:scale(.2) rotate(-14deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+#splash .logoWrap::after{content:"";position:absolute;inset:-16px;border-radius:50%;border:3px solid rgba(245,197,66,.85);animation:splashRing 1.15s ease-out .45s both}
+@keyframes splashRing{0%{transform:scale(.55);opacity:1}100%{transform:scale(1.5);opacity:0}}
+#splash img{width:132px;height:132px;border-radius:30px;box-shadow:0 18px 50px rgba(0,0,0,.55);animation:splashBob 1.6s ease-in-out .7s infinite}
+@keyframes splashBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+#splash .ttl{font-size:44px;font-weight:900;letter-spacing:1px;color:#fff;display:flex;gap:2px}
+#splash .ttl span{display:inline-block;opacity:0;animation:splashLetter .45s cubic-bezier(.2,1.8,.4,1) forwards}
+#splash .ttl span.gold{color:#f5c542}
+@keyframes splashLetter{0%{opacity:0;transform:translateY(26px) scale(.5)}100%{opacity:1;transform:translateY(0) scale(1)}}
+#splash .tagline{color:#aebfff;font-size:16px;opacity:0;animation:splashFade .5s ease 1.15s forwards}
+#splash .skip{position:absolute;bottom:26px;color:#7f8fc9;font-size:13px;opacity:0;animation:splashFade .5s ease 1.5s forwards}
+@keyframes splashFade{to{opacity:1}}
 </style>
 </head>
 <body>
+<div id="splash" role="presentation">
+  <div class="rays"></div>
+  <div class="logoWrap"><img src="logo.png" alt="GetOnUp"></div>
+  <div class="ttl" aria-label="Get On Up"><span class="" style="animation-delay:0.55s">G</span><span class="" style="animation-delay:0.61s">E</span><span class="" style="animation-delay:0.66s">T</span><span class="" style="animation-delay:0.72s">&nbsp;</span><span class="gold" style="animation-delay:0.77s">O</span><span class="" style="animation-delay:0.83s">N</span><span class="" style="animation-delay:0.88s">&nbsp;</span><span class="gold" style="animation-delay:0.94s">U</span><span class="" style="animation-delay:0.99s">P</span><span class="" style="animation-delay:1.04s">!</span></div>
+  <div class="tagline">The alarm that gets you UP 👍🏾</div>
+  <div class="skip">tap to skip</div>
+</div>
+
 <div id="glow"></div>
 <header><img src="logo.png" alt="GetOnUp logo" style="width:46px;height:46px;border-radius:12px"><div><h1>Get<span>On</span>Up</h1><div class="tag">The alarm that gets you UP 👍🏾</div></div><div style="margin-left:auto;font-size:22px">🔥 <b id="streakTop">0</b></div></header>
 
@@ -632,6 +659,12 @@ renderStats();
 $("#btnGlanceBoost").onclick=()=>$("#btnTestBoost").click();
 $("#btnGlanceSkip").onclick=()=>{const{alarm}=nextAlarmDate();if(alarm){alarm.skipNext=!alarm.skipNext;saveAll();renderAlarms();toast(alarm.skipNext?"⏭️ Next alarm skipped":"Skip cancelled")}else toast("No alarm is on")};
 renderAlarms();renderLog();
+</script>
+<script>
+/* Opening sequence: ~2.4s, tap anywhere to skip */
+(function(){var sp=document.getElementById('splash');if(!sp)return;
+function endSplash(){if(!sp||sp.classList.contains('gone'))return;sp.classList.add('gone');setTimeout(function(){if(sp&&sp.parentNode)sp.parentNode.removeChild(sp);sp=null;},500);}
+sp.addEventListener('click',endSplash);setTimeout(endSplash,2400);})();
 </script>
 </body>
 </html>
