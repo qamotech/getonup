@@ -95,6 +95,7 @@ nav button.on{color:var(--accent)}
 .breath{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,var(--blue),var(--purple));margin:14px auto;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;transition:transform 4s linear}
 .check{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:15px}
 .check input{width:22px;height:22px;accent-color:var(--good)}
+body.redshift{--bg:#1a0505;--bg2:#260808;--card:#2e0a0a;--card2:#3d1010;--text:#ffd9d0;--muted:#d99a90;--border:#5a1f1f;--blue:#ff9a7a;--purple:#ff7a9a}
 body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{font-size:18px}
 .badge{font-size:30px;opacity:.25;filter:grayscale(1);text-align:center}
 .badge.earned{opacity:1;filter:none}
@@ -144,11 +145,33 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
   </div>
 
   <div class="card">
+    <h2>☕ Caffeine Cutoff &amp; Sleep Debt <span class="chip">via Gemini ideas</span></h2>
+    <p class="small" id="caffMsg"></p>
+    <p class="small" id="debtMsg" style="margin-top:6px"></p>
+    <label>📝 Sticky note for tomorrow morning</label>
+    <input type="text" id="stickyInput" placeholder="e.g. Need gas — leave 10 min early">
+  </div>
+  <div class="card">
+    <h2>🔋 Bedtime Pre-Flight Check</h2>
+    <p class="small" id="batteryMsg">Battery: checking…</p>
+    <p class="small">✔️ Media volume UP · ✔️ Do Not Disturb off / GetOnUp allowed · ✔️ Phone on charger</p>
+    <div class="row">
+      <button class="btn smallb" id="btnWakeLock">🔒 Keep screen awake tonight</button>
+      <button class="btn smallb" id="btnRedshift">🔴 Red-shift: Off</button>
+    </div>
+    <p class="small" style="margin-top:6px">Red-shift also turns itself on automatically within 1 hour of bedtime.</p>
+  </div>
+  <div class="card">
     <h2>🚗 Leave-By Countdown</h2>
     <div class="countbig" id="leaveCount" style="color:var(--accent)">--:--:--</div>
     <p class="small" style="text-align:center" id="leaveMsg">Counts down to your leave-for-work time.</p>
     <label>Leave for work at</label>
     <input type="time" id="leaveInput">
+    <div class="row">
+      <button class="btn smallb" id="btnRoutine">▶ Start paced routine</button>
+      <button class="btn smallb" id="btnLate">🏃 Running late mode</button>
+    </div>
+    <p class="small" id="routineMsg" style="margin-top:6px"></p>
     <div class="timeline" id="timeline"></div>
   </div>
 
@@ -248,6 +271,8 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
     <div id="windList"></div>
     <h2 style="margin-top:14px">🎒 Tomorrow Prep</h2>
     <div id="prepList"></div>
+    <h2 style="margin-top:14px">🦺 Warehouse Gear Check</h2>
+    <div id="gearList"></div>
   </div>
   <div class="card">
     <h2>📊 Your Stats &amp; Badges</h2>
@@ -323,7 +348,7 @@ body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{fon
   <label>Sound</label><select id="edSound"></select>
   <button class="btn" id="btnPreview">▶ Preview sound</button>
   <label>Wake-up mission</label>
-  <select id="edMission"><option value="none">None — normal dismiss</option><option value="math">🧮 Math problem</option><option value="targets">🎯 Tap the targets</option><option value="phrase">✍️ Type GET ON UP</option></select>
+  <select id="edMission"><option value="none">None — normal dismiss</option><option value="math">🧮 Math problem</option><option value="targets">🎯 Tap the targets</option><option value="phrase">✍️ Type GET ON UP</option><option value="shake">📳 Shake it (15 shakes)</option></select>
   <label>Max snoozes (5 min each)</label>
   <select id="edSnooze"><option value="0">0 — no snooze</option><option value="1">1</option><option value="2" selected>2 (default)</option><option value="3">3</option><option value="5">5</option></select>
   <div class="row" style="margin-top:14px"><button class="btn primary" id="btnSaveAlarm">Save Alarm</button><button class="btn" id="btnCancelEdit">Cancel</button></div>
@@ -419,7 +444,7 @@ function renderAlarms(){alarms.sort((x,y)=>x.time.localeCompare(y.time));const e
 /* ---------- EDITOR ---------- */
 let edDays=new Set([1,2,3,4,5]);
 function renderEdDays(){$("#edDays").innerHTML=DAYFULL.map((d,i)=>`<button class="day ${edDays.has(i)?"on":""}" data-d="${i}">${DAYN[i]}</button>`).join("");$$("#edDays .day").forEach(b=>b.onclick=e=>{e.preventDefault();const d=+b.dataset.d;edDays.has(d)?edDays.delete(d):edDays.add(d);renderEdDays()})}
-function openEditor(id){editId=id||null;$("#edSound").innerHTML=SOUNDS.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
+function openEditor(id){editId=id||null;$("#edSound").innerHTML=SOUNDS.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")+'<option value="rotate">🔀 Rotate daily (never get used to it)</option>';
  if(id){const a=alarms.find(x=>x.id===id);$("#edTitle").textContent="Edit Alarm";$("#edTime").value=a.time;$("#edLabel").value=a.label;$("#edSound").value=a.sound;$("#edMission").value=a.mission;$("#edSnooze").value=String(a.snoozeMax);edDays=new Set(a.days);$("#btnDeleteAlarm").style.display="block"}
  else{$("#edTitle").textContent="New Alarm";$("#edTime").value="02:00";$("#edLabel").value="";$("#edMission").value="math";$("#edSnooze").value="2";edDays=new Set([1,2,3,4,5]);$("#btnDeleteAlarm").style.display="none"}
  renderEdDays();$("#editor").classList.add("open")}
@@ -458,6 +483,9 @@ function tick(){const now=new Date();
  /* bedtime countdown */
  const bt=new Date(now);const[bh,bm]=settings.bedtime.split(":").map(Number);bt.setHours(bh,bm,0,0);if(bt<now)bt.setDate(bt.getDate()+1);
  const bms=bt-now;$("#bedCount").textContent=msToHMS(bms);
+ const caff=new Date(bt.getTime()-9*3600000);const cEl=$("#caffMsg");if(cEl)cEl.innerHTML=now<caff?"☕ Caffeine OK until <b>"+caff.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+"</b> (9h before bedtime) — then cut it off.":"☕ <b>Caffeine cutoff passed</b> ("+caff.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+") — no more coffee/energy drinks if you want real sleep.";
+ const dEl=$("#debtMsg");if(dEl){if(now>bt-0&&bms>20*3600000){} const nd=nextAlarmDate();if(nd.date){const sleepLeft=nd.date-now;dEl.innerHTML=now>new Date(now).setHours(bh,bm,0,0)&&false?"":"😴 If you go to bed <b>right now</b>: <b>"+Math.floor(sleepLeft/3600000)+"h "+Math.floor(sleepLeft%3600000/60000)+"m</b> of sleep before your next alarm. Every minute up cuts it."}}
+ if(bms<3600000)document.body.classList.add("redshift");else if(!settings.redManual)document.body.classList.remove("redshift");
  $("#bedMsg").textContent=bms<15*60000?"🌙 Screens down in "+Math.max(0,Math.round(bms/60000))+" — wind down now, screens off, lights low.":bms<60*60000?"🌙 Bedtime in under an hour — wrap up, lay out tomorrow's clothes.":"Bedtime at "+fmt12(settings.bedtime)+" — you've got time, make it count.";
  /* leave countdown */
  const lv=new Date(now);const[lh,lm]=settings.leave.split(":").map(Number);lv.setHours(lh,lm,0,0);if(lv<now)lv.setDate(lv.getDate()+1);
@@ -474,7 +502,9 @@ function clearGlow(){$("#glow").style.opacity=0}
 function fireAlarm(a){if(a.skipNext){a.skipNext=false;saveAll();renderAlarms();toast("⏭️ Skipped: "+(a.label||a.time));return}
  ringState={alarm:a,snoozes:0,firedAt:new Date(),missionDone:a.mission==="none"};
  $("#ringLabel").textContent=a.label||"Alarm";$("#ringTime").textContent=fmt12(a.time);
- $("#ringMsg").textContent=a.mission==="none"?"Time to get ON UP! 💪🏾":"Complete your mission to dismiss — no half-asleep kills. 🧮";
+ $("#ringMsg").textContent=(a.mission==="none"?"Time to get ON UP! 💪🏾":"Complete your mission to dismiss — no half-asleep kills. 🧮")+(settings.sticky?" 📝 "+settings.sticky:"");
+ if(a.sound==="rotate"){const ids=SOUNDS.map(s=>s.id).filter(x=>x!=="rotate");a={...a,sound:ids[new Date().getDate()%ids.length]};ringState.alarm=a}
+ clearTimeout(window._escT);window._escT=setTimeout(()=>{if(ringState){if(navigator.vibrate)navigator.vibrate([150,60,150,60,150,60,900]);toast("⏰ Still ringing — escalating! GET ON UP!")}},60000);
  updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");clearGlow();
  playSound(a.sound,(settings.vol||100)/100,settings.fade);if(navigator.vibrate){const pat=settings.vib==="funk"?[120,60,120,60,300,100,500]:settings.vib==="urgent"?[200,80,200,80,200,80,700]:[400,200,400,200,800];navigator.vibrate(pat)}if(settings.flash==="on")$("#ringOverlay").classList.add("flashon")}
 function updateSnoozeBtn(){const a=ringState.alarm;const left=a.snoozeMax-ringState.snoozes;$("#snoozeLeft").textContent=Math.max(0,left);$("#btnSnooze").style.display=left>0?"block":"none";if(left<=0)$("#ringMsg").textContent="Snooze cap hit — mission only now. You got this 💪🏾";$("#btnDismiss").style.display=ringState.missionDone?"block":"none"}
@@ -483,6 +513,10 @@ function renderMission(){const area=$("#missionArea");const a=ringState?ringStat
  if(a.mission==="math"){const hard=settings.diff==="hard";const x=hard?7+Math.floor(Math.random()*12):3+Math.floor(Math.random()*9),y=hard?6+Math.floor(Math.random()*11):4+Math.floor(Math.random()*9),op=Math.random()<0.5?"+":"×";const ans=op==="+"?x+y:x*y;ringState.answer=ans;
   area.innerHTML=`<div class="mathq">${x} ${op} ${y} = ?</div><input type="number" id="mathAns" placeholder="Your answer" style="text-align:center;font-size:22px"><button class="btn primary" id="btnMath">Check</button>`;
   $("#btnMath").onclick=()=>{if(+$("#mathAns").value===ans){ringState.missionDone=true;area.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ Mission complete — now get UP!</p>';updateSnoozeBtn()}else{$("#mathAns").value="";$("#mathAns").placeholder="Try again 💪🏾"}}}
+ if(a.mission==="shake"){ringState.shakes=0;area.innerHTML='<p class="small" style="margin-top:10px">Shake the phone hard — <b id="shN">0</b>/15</p><button class="btn" id="btnShakeFallback">No sensor? Tap 20× instead</button>';
+  let lastA=0;ringState.shakeHandler=e=>{const acc=e.accelerationIncludingGravity;if(!acc)return;const mag=Math.abs(acc.x||0)+Math.abs(acc.y||0)+Math.abs(acc.z||0);if(mag>45&&Date.now()-lastA>250){lastA=Date.now();ringState.shakes++;const el=$("#shN");if(el)el.textContent=ringState.shakes;if(ringState.shakes>=15){window.removeEventListener("devicemotion",ringState.shakeHandler);ringState.missionDone=true;area.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ Blood flowing — get UP!</p>';updateSnoozeBtn()}}};
+  window.addEventListener("devicemotion",ringState.shakeHandler);
+  let taps=0;$("#btnShakeFallback").onclick=ev=>{taps++;ev.target.textContent="Tap "+taps+"/20";if(taps>=20){window.removeEventListener("devicemotion",ringState.shakeHandler);ringState.missionDone=true;area.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ Done — get UP!</p>';updateSnoozeBtn()}};return}
  if(a.mission==="targets"){ringState.targetsHit=0;area.innerHTML=`<p class="small" style="margin-top:8px">Tap all <b>5 targets</b> — hit: <b id="tHit">0</b>/5</p><div id="targetArea"></div>`;spawnTarget()}}
 function spawnTarget(){const area=$("#targetArea");if(!area)return;area.innerHTML="";const t=document.createElement("button");t.className="target";t.textContent="🎯";t.style.left=Math.random()*70+"%";t.style.top=Math.random()*65+"%";t.onclick=()=>{ringState.targetsHit++;if(ringState.targetsHit>=5){ringState.missionDone=true;area.parentElement.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ Targets cleared — get UP!</p>';updateSnoozeBtn()}else{$("#tHit").textContent=ringState.targetsHit;spawnTarget()}};area.appendChild(t)}
 $("#btnSnooze").onclick=()=>{if(!ringState)return;ringState.snoozes++;stopSound();$("#ringOverlay").classList.remove("open");toast("😴 Snoozed 5 min ("+ringState.snoozes+"/"+ringState.alarm.snoozeMax+")");const a=ringState.alarm;snoozeTimer=setTimeout(()=>{ringState.missionDone=a.mission==="none";$("#ringLabel").textContent=(a.label||"Alarm")+" — SNOOZE OVER";updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");playSound(a.sound,(settings.vol||100)/100,settings.fade);if(navigator.vibrate)navigator.vibrate([400,200,400])},5*60000)};
@@ -491,7 +525,8 @@ $("#btnDismiss").onclick=()=>{if(!ringState||!ringState.missionDone)return;stopS
  const late=(Date.now()-ringState.firedAt.getTime())/60000;const onTime=late<=10+ringState.snoozes*5;
  log.unshift({type:"wake",when:new Date().toISOString(),label:ringState.alarm.label||ringState.alarm.time,onTime}); 
  const td=todayStr();if(onTime&&streak.last!==td){const y=new Date();y.setDate(y.getDate()-1);streak.count=streak.last===todayStr(y)?streak.count+1:1;streak.last=td}
- ringState=null;saveAll();renderLog();toast(onTime?"🌅 On time! Streak: "+streak.count+" 🔥":"Logged — tomorrow we beat it 💪🏾")};
+ ringState=null;saveAll();renderLog();toast(onTime?"🌅 On time! Streak: "+streak.count+" 🔥":"Logged — tomorrow we beat it 💪🏾");
+ setTimeout(()=>{if(confirm("👀 Still-awake check: tap OK if you're really UP. Cancel and the alarm comes back!")){toast("✅ Confirmed awake — have a great shift 💪🏾")}else{const a2=alarms.find(x=>x.on)||{time:"00:00",label:"STILL-AWAKE RE-ALARM",sound:"rooster",mission:"math",snoozeMax:0};ringState={alarm:a2,snoozes:0,firedAt:new Date(),missionDone:false};$("#ringLabel").textContent="STILL-AWAKE RE-ALARM";$("#ringTime").textContent="⏰";updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");playSound(a2.sound,(settings.vol||100)/100,0)}},5*60000)};
 /* demo mission */
 $("#btnDemoMission").onclick=()=>{ringState={alarm:{label:"Demo Mission",time:"09:00",mission:Math.random()<0.5?"math":"targets",snoozeMax:0},snoozes:0,firedAt:new Date(),missionDone:false};$("#ringLabel").textContent="Demo Mission";$("#ringTime").textContent="🧮";updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open")};
 /* ---------- SLEEP CYCLES ---------- */
@@ -567,6 +602,19 @@ function download(name,content,type){const b=new Blob([content],{type});const u=
 $("#btnExportLog").onclick=()=>{const csv="type,when,label,onTime\n"+log.map(e=>[e.type,e.when,(e.label||"").replace(/,/g," "),e.onTime].join(",")).join("\n");download("getonup-sleep-log.csv",csv,"text/csv");toast("Sleep log exported ⬇")};
 $("#btnExportAlarms").onclick=()=>{download("getonup-alarms.json",JSON.stringify(alarms,null,2),"application/json");toast("Alarms exported ⬇")};
 $("#importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const arr=JSON.parse(t);if(Array.isArray(arr)){alarms=arr;saveAll();renderAlarms();toast("Alarms imported 👍🏾")}else toast("That file is not an alarm list")}catch(err){toast("Import failed — bad JSON")}})};
+/* Gemini-batch wiring */
+const GEAR=[["🦺","Hi-vis vest"],["🥾","Steel-toe boots"],["🧤","Gloves"],["🪪","Badge / ID"],["💧","Water bottle"],["🥪","Lunch"],["🔪","Box cutter"]];
+renderChecks("#gearList",GEAR,"gear");
+const stIn=$("#stickyInput");if(stIn){stIn.value=settings.sticky||"";stIn.onchange=e=>{settings.sticky=e.target.value.trim();saveAll();toast("📝 Sticky note saved for the morning")}}
+if(navigator.getBattery)navigator.getBattery().then(b=>{const upd=()=>{$("#batteryMsg").innerHTML="Battery: <b>"+Math.round(b.level*100)+"%</b>"+(b.charging?" ⚡ charging":b.level<0.2?" — ⚠️ LOW! Plug in before bed":"");};b.onlevelchange=upd;b.onchargingchange=upd;upd()});else $("#batteryMsg").textContent="Battery: (not readable in this browser) — plug in before bed anyway 🔋";
+let wakeLock=null;$("#btnWakeLock").onclick=async()=>{try{if(wakeLock){wakeLock.release();wakeLock=null;$("#btnWakeLock").textContent="🔒 Keep screen awake tonight";toast("Wake lock off")}else{wakeLock=await navigator.wakeLock.request("screen");$("#btnWakeLock").textContent="🔓 Screen kept awake — tap to release";toast("🔒 Screen will stay awake")}}catch(e){toast("Wake lock not available in this browser")}};
+function applyRed(){$("#btnRedshift").textContent="🔴 Red-shift: "+(document.body.classList.contains("redshift")?"On":"Off")}
+$("#btnRedshift").onclick=()=>{settings.redManual=!document.body.classList.contains("redshift");document.body.classList.toggle("redshift",settings.redManual);saveAll();applyRed()};applyRed();
+/* paced routine + running late */
+let lateFactor=1,routineTimer=null;
+$("#btnLate").onclick=()=>{lateFactor=lateFactor===1?0.5:1;renderTimeline();$("#routineMsg").textContent=lateFactor<1?"🏃 RUNNING LATE MODE: routine compressed to essentials — skip the long steps, out the door counts.":"Running late mode off.";toast(lateFactor<1?"🏃 Late mode ON — compressed":"Late mode off")};
+const _rt=renderTimeline;renderTimeline=function(){const leave=settings.leave;let[h,m]=leave.split(":").map(Number);const leaveMin=h*60+m;$("#timeline").innerHTML=STEPS.map((s,i)=>{const t=leaveMin-Math.round(STEPS.slice(i).reduce((a,x)=>a+x[2],0)*lateFactor);const hh=((Math.floor(t/60)%24)+24)%24,mm=((t%60)+60)%60;return `<div class="tstep" data-step="${i}"><span>${s[0]}</span><span style="flex:1">${s[1]}${lateFactor<1&&s[2]>10?" (short)":""}</span><b>${fmt12(String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"))}</b><button class="iconbtn" data-done="${i}">✔️</button></div>`}).join("");$$("#timeline [data-done]").forEach(b=>b.onclick=()=>b.parentElement.classList.toggle("done"))};renderTimeline();
+$("#btnRoutine").onclick=()=>{let idx=0;const run=()=>{if(idx>=STEPS.length){$("#routineMsg").textContent="🚗 Routine done — OUT THE DOOR!";volumeCheck(()=>{});return}const[nameS]=[STEPS[idx][1]];const dur=Math.max(1,Math.round(STEPS[idx][2]*lateFactor));$("#routineMsg").innerHTML="▶ <b>"+STEPS[idx][0]+" "+nameS+"</b> — "+dur+" min";toast("Routine: "+nameS);routineTimer=setTimeout(()=>{idx++;volumeCheck(()=>{});run()},dur*60000)};if(routineTimer){clearTimeout(routineTimer);routineTimer=null;$("#routineMsg").textContent="Routine stopped."}else run()}; 
 renderStats();
 
 renderAlarms();renderLog();
