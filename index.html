@@ -87,6 +87,18 @@ nav button.on{color:var(--accent)}
 .page{display:none}.page.on{display:block}
 .progress{height:12px;background:var(--bg2);border-radius:99px;overflow:hidden;margin-top:8px}
 .progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));width:0%}
+.heroimg{width:100%;border-radius:14px;border:2px solid var(--accent);display:block}
+.confetti{position:fixed;width:10px;height:16px;z-index:400;top:-20px;animation:fall 2.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.flashon{animation:flashbg .5s infinite}
+@keyframes flashbg{0%,100%{background:#0b1020}50%{background:#5a4300}}
+.breath{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,var(--blue),var(--purple));margin:14px auto;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;transition:transform 4s linear}
+.check{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border);font-size:15px}
+.check input{width:22px;height:22px;accent-color:var(--good)}
+body.large{font-size:19px} body.large .small{font-size:16px} body.large .btn{font-size:18px}
+.badge{font-size:30px;opacity:.25;filter:grayscale(1);text-align:center}
+.badge.earned{opacity:1;filter:none}
+.badge small{display:block;font-size:11px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -108,6 +120,18 @@ nav button.on{color:var(--accent)}
     <button class="btn primary" id="btnInstallAndroid">🤖 Install on Android</button>
     <button class="btn" id="btnInstallIOS">🍎 Install on iPhone / iPad</button>
     <p class="small" id="installDone" style="display:none;color:var(--good);font-weight:700">✅ GetOnUp is installed — open it from your home screen!</p>
+  </div>
+
+  <div class="card" style="border-color:var(--accent)">
+    <img class="heroimg" src="jb-hero.jpg" alt="James Brown — The Godfather of Soul, illustrated tribute poster">
+    <h2 style="margin-top:10px">🎤 The Godfather Says: GET ON UP!</h2>
+    <p class="small" id="jbQuote"></p>
+    <div class="row">
+      <a class="btn smallb" style="text-decoration:none" target="_blank" rel="noopener" href="https://open.spotify.com/search/James%20Brown%20Get%20Up%20Offa%20That%20Thing">🎵 Spotify: JB Hits</a>
+      <a class="btn smallb" style="text-decoration:none" target="_blank" rel="noopener" href="https://music.youtube.com/search?q=James+Brown+I+Feel+Good">▶️ YouTube Music</a>
+    </div>
+    <p class="small" style="margin-top:8px">Real James Brown tracks stream from the official services above (songs can't be baked into a web app). Inside GetOnUp you get <b>original funk grooves</b> built in his style — pick ⚡ Get Up Funk as your alarm sound. 🎺</p>
+    <p class="small" id="affirm" style="margin-top:8px;color:var(--accent);font-weight:700"></p>
   </div>
 
   <div class="card">
@@ -192,6 +216,80 @@ nav button.on{color:var(--accent)}
   </div>
 </section>
 
+<!-- EXTRAS -->
+<section class="page" id="page-extras">
+  <div class="card">
+    <h2>⚡ Quick Nap Alarms</h2>
+    <p class="small">One tap sets a one-time nap alarm from now.</p>
+    <div class="row">
+      <button class="btn smallb" data-nap="10">10 min</button>
+      <button class="btn smallb" data-nap="20">20 min ⚡</button>
+      <button class="btn smallb" data-nap="90">90 min (full cycle)</button>
+    </div>
+    <button class="btn" id="btnTest10">🧪 Test alarm in 10 seconds</button>
+    <button class="btn" id="btnDayOff">🌴 Day off tomorrow — skip all tomorrow's alarms</button>
+  </div>
+  <div class="card">
+    <h2>🎧 Sleep Sounds (auto-off timer)</h2>
+    <p class="small">Generated live — rain, ocean, fan &amp; brown noise. No files, no voices.</p>
+    <label>Sound</label>
+    <select id="ssSound"><option value="rain">🌧️ Rain</option><option value="ocean">🌊 Ocean</option><option value="fan">🌀 Fan</option><option value="brown">🟤 Brown noise</option></select>
+    <label>Play for</label>
+    <select id="ssTimer"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option><option value="0">Until I stop it</option></select>
+    <div class="row"><button class="btn primary" id="btnSSPlay">▶ Play sleep sounds</button><button class="btn" id="btnSSStop">⏹ Stop</button></div>
+  </div>
+  <div class="card">
+    <h2>🫁 Wind-Down Breathing (4-4-4)</h2>
+    <div class="breath" id="breathCircle">Ready</div>
+    <div class="row"><button class="btn primary" id="btnBreathStart">▶ Start 2 minutes</button><button class="btn" id="btnBreathStop">⏹ Stop</button></div>
+  </div>
+  <div class="card">
+    <h2>✅ Wind-Down Checklist</h2>
+    <div id="windList"></div>
+    <h2 style="margin-top:14px">🎒 Tomorrow Prep</h2>
+    <div id="prepList"></div>
+  </div>
+  <div class="card">
+    <h2>📊 Your Stats &amp; Badges</h2>
+    <div id="statsOut" class="small"></div>
+    <div class="row" style="margin-top:10px;text-align:center">
+      <div class="badge" id="badge3">🥉<small>3-day streak</small></div>
+      <div class="badge" id="badge7">🥈<small>7-day streak</small></div>
+      <div class="badge" id="badge14">🥇<small>14-day streak</small></div>
+      <div class="badge" id="badge30">👑<small>30-day streak</small></div>
+    </div>
+    <h3>📅 Next 7 days</h3>
+    <div id="weekOut"></div>
+  </div>
+  <div class="card">
+    <h2>🎛️ Customize</h2>
+    <label>Alarm volume (in-app)</label>
+    <input type="range" id="volSlider" min="30" max="100" value="100" style="width:100%">
+    <label>Sunrise glow starts</label>
+    <select id="glowSel"><option value="1">1 min before</option><option value="5" selected>5 min before</option><option value="10">10 min before</option></select>
+    <label>Mission difficulty</label>
+    <select id="diffSel"><option value="easy">Easy math (single digits)</option><option value="hard">Hard math (bigger numbers)</option></select>
+    <label>Ring screen flash</label>
+    <select id="flashSel"><option value="off">Off</option><option value="on">On — screen strobes while ringing</option></select>
+    <label>Vibration pattern</label>
+    <select id="vibSel"><option value="standard">Standard</option><option value="funk">Funky syncopated 🥁</option><option value="urgent">Urgent triple-buzz</option></select>
+    <div class="row" style="margin-top:10px">
+      <button class="btn smallb" id="btnAccent">🎨 Accent: Gold</button>
+      <button class="btn smallb" id="btnLarge">🔠 Large print: Off</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>💾 Backup &amp; Share</h2>
+    <div class="row">
+      <button class="btn smallb" id="btnExportLog">⬇ Export sleep log (CSV)</button>
+      <button class="btn smallb" id="btnExportAlarms">⬇ Export alarms (JSON)</button>
+    </div>
+    <label>Import alarms (JSON file)</label>
+    <input type="file" id="importFile" accept=".json,application/json">
+    <p class="small" style="margin-top:8px">🔋 Bedtime tip lives in the checklist: phone on the charger + media volume UP = alarm you can trust.</p>
+  </div>
+</section>
+
 <!-- HELP -->
 <section class="page" id="page-help">
   <div class="card">
@@ -212,6 +310,7 @@ nav button.on{color:var(--accent)}
   <button data-page="home" class="on"><span class="ni">🏠</span>Home</button>
   <button data-page="alarms"><span class="ni">⏰</span>Alarms</button>
   <button data-page="smart"><span class="ni">😴</span>Smart Sleep</button>
+  <button data-page="extras"><span class="ni">⚡</span>Extras</button>
   <button data-page="help"><span class="ni">❓</span>Help</button>
 </nav>
 
@@ -224,7 +323,7 @@ nav button.on{color:var(--accent)}
   <label>Sound</label><select id="edSound"></select>
   <button class="btn" id="btnPreview">▶ Preview sound</button>
   <label>Wake-up mission</label>
-  <select id="edMission"><option value="none">None — normal dismiss</option><option value="math">🧮 Math problem</option><option value="targets">🎯 Tap the targets</option></select>
+  <select id="edMission"><option value="none">None — normal dismiss</option><option value="math">🧮 Math problem</option><option value="targets">🎯 Tap the targets</option><option value="phrase">✍️ Type GET ON UP</option></select>
   <label>Max snoozes (5 min each)</label>
   <select id="edSnooze"><option value="0">0 — no snooze</option><option value="1">1</option><option value="2" selected>2 (default)</option><option value="3">3</option><option value="5">5</option></select>
   <div class="row" style="margin-top:14px"><button class="btn primary" id="btnSaveAlarm">Save Alarm</button><button class="btn" id="btnCancelEdit">Cancel</button></div>
@@ -257,6 +356,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const LS={get(k,d){try{const v=localStorage.getItem("getonup_"+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem("getonup_"+k,JSON.stringify(v))}catch(e){}}};
 let alarms=LS.get("alarms",[{id:1,time:"02:00",label:"Get up — Arc Beverage shift",days:[1,2,3,4,5],sound:"energize",mission:"math",snoozeMax:2,on:true,skipNext:false,group:"Weekday"}]);
 let settings=LS.get("settings",{bedtime:"21:30",leave:"02:20",fade:10});
+settings=Object.assign({vol:100,glowMin:5,diff:"easy",flash:"off",vib:"standard",accent:"gold",large:false,checks:{}},settings);
 let log=LS.get("log",[]); let streak=LS.get("streak",{count:0,last:""});
 let editId=null, deferredPrompt=null, audioCtx=null, ringState=null, snoozeTimer=null;
 const SOUNDS=[
@@ -265,7 +365,10 @@ const SOUNDS=[
  {id:"sunrise",name:"🌅 Sunrise — warm major arpeggio"},
  {id:"piano",name:"🎹 Morning Piano — chords & melody"},
  {id:"ocean",name:"🌊 Ocean Rise — swell + soft notes"},
- {id:"rooster",name:"🐓 Rooster Synth — playful & loud"}];
+ {id:"rooster",name:"🐓 Rooster Synth — playful & loud"},
+ {id:"funk1",name:"⚡ Get Up Funk — original JB-style groove"},
+ {id:"funk2",name:"🎺 Feel Good Funk — horns & bass"},
+ {id:"funk3",name:"🥁 Papa's Groove — drums first, then BAM"}];
 const DAYN=["S","M","T","W","T","F","S"], DAYFULL=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 function saveAll(){LS.set("alarms",alarms);LS.set("settings",settings);LS.set("log",log);LS.set("streak",streak)}
 function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2600)}
@@ -284,6 +387,12 @@ const MELODIES={
  ocean:{bpm:90,play(c,t,v){noiseSwell(c,t,2.6,0.30*v);[392,494,587,494].forEach((f,i)=>tone(c,f,t+0.3+i*0.55,1.0,"sine",0.32*v))}},
  rooster:{bpm:120,play(c,t,v){for(let r=0;r<2;r++){const s=t+r*1.1;tone(c,700,s,0.16,"sawtooth",0.22*v,1200);tone(c,900,s+0.2,0.16,"sawtooth",0.22*v,1500);tone(c,800,s+0.42,0.5,"sawtooth",0.28*v,1900)}tone(c,196,t,2.2,"square",0.08*v)}}
 };
+function kick(c,t,v){const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(45,t+0.12);g.gain.setValueAtTime(0.7*v,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.16);o.connect(g).connect(c.destination);o.start(t);o.stop(t+0.2)}
+function hat(c,t,v,open){const len=c.sampleRate*0.05,buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;const s=c.createBufferSource();s.buffer=buf;const f=c.createBiquadFilter();f.type="highpass";f.frequency.value=7000;const g=c.createGain();g.gain.setValueAtTime((open?0.20:0.13)*v,t);g.gain.exponentialRampToValueAtTime(0.001,t+(open?0.18:0.05));s.connect(f).connect(g).connect(c.destination);s.start(t)}
+function snare(c,t,v){const len=c.sampleRate*0.12,buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);const s=c.createBufferSource();s.buffer=buf;const f=c.createBiquadFilter();f.type="bandpass";f.frequency.value=1800;const g=c.createGain();g.gain.setValueAtTime(0.4*v,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.12);s.connect(f).connect(g).connect(c.destination);s.start(t);tone(c,190,t,0.08,"triangle",0.2*v)}
+MELODIES.funk1={play(c,t,v){const bass=[110,0,110,0,131,0,110,0,98,0,110,0,165,147,131,0];bass.forEach((f,i)=>{if(f)tone(c,f,t+i*0.16,0.15,"sawtooth",0.30*v)});for(let i=0;i<8;i++){kick(c,t+i*0.32,v);hat(c,t+i*0.16,v)}snare(c,t+0.32,v);snare(c,t+0.96,v);[440,523,659].forEach((f,i)=>tone(c,f,t+2.1+i*0.1,0.2,"square",0.12*v))}};
+MELODIES.funk2={play(c,t,v){const horn=[392,392,466,392,0,587,523];horn.forEach((f,i)=>{if(f)tone(c,f,t+i*0.24,0.22,"sawtooth",0.20*v)});const bass=[98,98,117,98,87,98,131,117];bass.forEach((f,i)=>tone(c,f,t+i*0.32,0.2,"triangle",0.4*v));for(let i=0;i<8;i++)hat(c,t+i*0.32,v,i===7);kick(c,t,v);kick(c,t+0.8,v);snare(c,t+0.64,v);snare(c,t+1.6,v)}};
+MELODIES.funk3={play(c,t,v){for(let i=0;i<8;i++){hat(c,t+i*0.16,v,i%4===3)}kick(c,t,v);kick(c,t+0.48,v);kick(c,t+0.96,v);snare(c,t+0.32,v);snare(c,t+1.28,v);setTimeout(()=>{},0);[220,220,262,330].forEach((f,i)=>tone(c,f,t+1.7+i*0.14,0.3,"sawtooth",0.28*v));tone(c,440,t+2.3,0.6,"sawtooth",0.3*v)}};
 let playTimer=null, masterGainNodes=[];
 function playSound(id,vol,fadeSec){stopSound();const c=ctx();let v=vol==null?1:vol;const dur=2.8;const start=c.currentTime+0.05;
  if(fadeSec>0){let step=0;const steps=Math.max(1,Math.round(fadeSec/ (dur/ (1000/1000) )));}
@@ -299,11 +408,12 @@ function volumeCheck(done){const c=ctx();const t=c.currentTime+0.05;for(let i=0;
 /* ---------- NAV ---------- */
 $$("nav button").forEach(b=>b.onclick=()=>{$$("nav button").forEach(x=>x.classList.remove("on"));b.classList.add("on");$$(".page").forEach(p=>p.classList.remove("on"));$("#page-"+b.dataset.page).classList.add("on");window.scrollTo(0,0)});
 /* ---------- ALARM LIST ---------- */
-function renderAlarms(){const el=$("#alarmList");if(!alarms.length){el.innerHTML='<p class="small">No alarms yet — tap Add Alarm.</p>';return}
+function renderAlarms(){alarms.sort((x,y)=>x.time.localeCompare(y.time));const el=$("#alarmList");if(!alarms.length){el.innerHTML='<p class="small">No alarms yet — tap Add Alarm.</p>';return}
  el.innerHTML=alarms.map(a=>`<div class="alarm ${a.on?"":"off"}"><div><div class="atime">${fmt12(a.time)}</div><div class="alabel">${a.label||"Alarm"} · ${a.days.length===7?"Every day":a.days.map(d=>DAYFULL[d]).join(" ")}<br>${SOUNDS.find(s=>s.id===a.sound).name.split("—")[0]} ${a.mission!=="none"?"· 🧮 mission":""} · snooze ×${a.snoozeMax}${a.skipNext?" · ⏭️ <b style='color:var(--accent)'>next skipped</b>":""}</div></div>
- <button class="iconbtn" data-skip="${a.id}" title="Skip next">⏭️</button><button class="iconbtn" data-edit="${a.id}">✏️</button>
+ <button class="iconbtn" data-dup="${a.id}" title="Duplicate">📄</button><button class="iconbtn" data-skip="${a.id}" title="Skip next">⏭️</button><button class="iconbtn" data-edit="${a.id}">✏️</button>
  <label class="switch"><input type="checkbox" data-toggle="${a.id}" ${a.on?"checked":""}><span class="knob"></span></label></div>`).join("");
  el.querySelectorAll("[data-toggle]").forEach(t=>t.onchange=()=>{const a=alarms.find(x=>x.id==t.dataset.toggle);a.on=t.checked;saveAll();renderAlarms();toast(a.on?"Alarm ON ⏰":"Alarm off")});
+ el.querySelectorAll("[data-dup]").forEach(t=>t.onclick=()=>{const a=alarms.find(x=>x.id==t.dataset.dup);alarms.push({...a,id:Date.now(),label:(a.label||"Alarm")+" (copy)"});saveAll();renderAlarms();toast("Alarm duplicated 📄")});
  el.querySelectorAll("[data-edit]").forEach(t=>t.onclick=()=>openEditor(+t.dataset.edit));
  el.querySelectorAll("[data-skip]").forEach(t=>t.onclick=()=>{const a=alarms.find(x=>x.id==t.dataset.skip);a.skipNext=!a.skipNext;saveAll();renderAlarms();toast(a.skipNext?"⏭️ Next firing will be skipped":"Skip cancelled")});}
 /* ---------- EDITOR ---------- */
@@ -328,7 +438,7 @@ $("#bedtimeInput").value=settings.bedtime;$("#leaveInput").value=settings.leave;
 $("#bedtimeInput").onchange=e=>{settings.bedtime=e.target.value;saveAll();toast("Bedtime saved 🌙")};
 $("#leaveInput").onchange=e=>{settings.leave=e.target.value;saveAll();renderTimeline();toast("Leave time saved 🚗")};
 $("#fadeSel").onchange=e=>{settings.fade=+e.target.value;saveAll()};
-$("#btnTestBoost").onclick=()=>{toast("Volume check in 3… get ready 🔊");setTimeout(()=>volumeCheck(()=>{const h=playSound("energize",1,settings.fade);setTimeout(stopSound,6000)}),1200)};
+$("#btnTestBoost").onclick=()=>{toast("Volume check in 3… get ready 🔊");setTimeout(()=>volumeCheck(()=>{const h=playSound("energize",(settings.vol||100)/100,settings.fade);setTimeout(stopSound,6000)}),1200)};
 /* timeline */
 const STEPS=[["🌅","Wake up",0],["🚿","Shower & freshen up",10],["👕","Get dressed",10],["🍳","Breakfast & coffee",15],["🎒","Bag, keys, lunch check",10],["🚗","Out the door",5]];
 function renderTimeline(){const leave=settings.leave;let[h,m]=leave.split(":").map(Number);const leaveMin=h*60+m;let acc=0;
@@ -354,7 +464,7 @@ function tick(){const now=new Date();
  $("#leaveCount").textContent=msToHMS(lv-now);$("#leaveMsg").textContent="Leave at "+fmt12(settings.leave)+" for your shift 🚗";
  /* scheduler */
  alarms.filter(a=>a.on).forEach(a=>{const d=nextOccurrence(a, new Date(now.getTime()-6*60000));if(!d)return;const key=a.id+"_"+d.toDateString()+"_"+a.time;const diff=d-now;
-  if(diff<=5*60000&&diff>60000&&!glowKeys.has(key)){glowKeys.add(key);startGlow()}
+  if(diff<=(settings.glowMin||5)*60000&&diff>60000&&!glowKeys.has(key)){glowKeys.add(key);startGlow()}
   if(diff<=65000&&diff>55000&&!preKeys.has(key)){preKeys.add(key);toast("🔊 Volume check — alarm in 1 minute");volumeCheck(()=>{})}
   if(diff<=1000&&diff>-30000&&!firedKeys.has(key)){firedKeys.add(key);fireAlarm(a)}})}
 setInterval(tick,500);tick();
@@ -366,16 +476,18 @@ function fireAlarm(a){if(a.skipNext){a.skipNext=false;saveAll();renderAlarms();t
  $("#ringLabel").textContent=a.label||"Alarm";$("#ringTime").textContent=fmt12(a.time);
  $("#ringMsg").textContent=a.mission==="none"?"Time to get ON UP! 💪🏾":"Complete your mission to dismiss — no half-asleep kills. 🧮";
  updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");clearGlow();
- playSound(a.sound,1,settings.fade);if(navigator.vibrate)navigator.vibrate([400,200,400,200,800])}
+ playSound(a.sound,(settings.vol||100)/100,settings.fade);if(navigator.vibrate){const pat=settings.vib==="funk"?[120,60,120,60,300,100,500]:settings.vib==="urgent"?[200,80,200,80,200,80,700]:[400,200,400,200,800];navigator.vibrate(pat)}if(settings.flash==="on")$("#ringOverlay").classList.add("flashon")}
 function updateSnoozeBtn(){const a=ringState.alarm;const left=a.snoozeMax-ringState.snoozes;$("#snoozeLeft").textContent=Math.max(0,left);$("#btnSnooze").style.display=left>0?"block":"none";if(left<=0)$("#ringMsg").textContent="Snooze cap hit — mission only now. You got this 💪🏾";$("#btnDismiss").style.display=ringState.missionDone?"block":"none"}
 function renderMission(){const area=$("#missionArea");const a=ringState?ringState.alarm:null;if(!a||a.mission==="none"){area.innerHTML="";return}
- if(a.mission==="math"){const x=3+Math.floor(Math.random()*9),y=4+Math.floor(Math.random()*9),op=Math.random()<0.5?"+":"×";const ans=op==="+"?x+y:x*y;ringState.answer=ans;
+ if(a.mission==="phrase"){area.innerHTML='<p class="small" style="margin-top:10px">Type it like you mean it:</p><div class="mathq">GET ON UP</div><input type="text" id="phraseIn" placeholder="Type here" style="text-align:center;font-size:20px;text-transform:uppercase"><button class="btn primary" id="btnPhrase">Check</button>';$("#btnPhrase").onclick=()=>{if($("#phraseIn").value.trim().toUpperCase()==="GET ON UP"){ringState.missionDone=true;area.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ THAT\'S THE SPIRIT — get UP!</p>';updateSnoozeBtn()}else{$("#phraseIn").value="";$("#phraseIn").placeholder="Try again — GET ON UP"}};return}
+ if(a.mission==="math"){const hard=settings.diff==="hard";const x=hard?7+Math.floor(Math.random()*12):3+Math.floor(Math.random()*9),y=hard?6+Math.floor(Math.random()*11):4+Math.floor(Math.random()*9),op=Math.random()<0.5?"+":"×";const ans=op==="+"?x+y:x*y;ringState.answer=ans;
   area.innerHTML=`<div class="mathq">${x} ${op} ${y} = ?</div><input type="number" id="mathAns" placeholder="Your answer" style="text-align:center;font-size:22px"><button class="btn primary" id="btnMath">Check</button>`;
   $("#btnMath").onclick=()=>{if(+$("#mathAns").value===ans){ringState.missionDone=true;area.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ Mission complete — now get UP!</p>';updateSnoozeBtn()}else{$("#mathAns").value="";$("#mathAns").placeholder="Try again 💪🏾"}}}
  if(a.mission==="targets"){ringState.targetsHit=0;area.innerHTML=`<p class="small" style="margin-top:8px">Tap all <b>5 targets</b> — hit: <b id="tHit">0</b>/5</p><div id="targetArea"></div>`;spawnTarget()}}
 function spawnTarget(){const area=$("#targetArea");if(!area)return;area.innerHTML="";const t=document.createElement("button");t.className="target";t.textContent="🎯";t.style.left=Math.random()*70+"%";t.style.top=Math.random()*65+"%";t.onclick=()=>{ringState.targetsHit++;if(ringState.targetsHit>=5){ringState.missionDone=true;area.parentElement.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ Targets cleared — get UP!</p>';updateSnoozeBtn()}else{$("#tHit").textContent=ringState.targetsHit;spawnTarget()}};area.appendChild(t)}
-$("#btnSnooze").onclick=()=>{if(!ringState)return;ringState.snoozes++;stopSound();$("#ringOverlay").classList.remove("open");toast("😴 Snoozed 5 min ("+ringState.snoozes+"/"+ringState.alarm.snoozeMax+")");const a=ringState.alarm;snoozeTimer=setTimeout(()=>{ringState.missionDone=a.mission==="none";$("#ringLabel").textContent=(a.label||"Alarm")+" — SNOOZE OVER";updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");playSound(a.sound,1,settings.fade);if(navigator.vibrate)navigator.vibrate([400,200,400])},5*60000)};
-$("#btnDismiss").onclick=()=>{if(!ringState||!ringState.missionDone)return;stopSound();clearGlow();$("#ringOverlay").classList.remove("open");
+$("#btnSnooze").onclick=()=>{if(!ringState)return;ringState.snoozes++;stopSound();$("#ringOverlay").classList.remove("open");toast("😴 Snoozed 5 min ("+ringState.snoozes+"/"+ringState.alarm.snoozeMax+")");const a=ringState.alarm;snoozeTimer=setTimeout(()=>{ringState.missionDone=a.mission==="none";$("#ringLabel").textContent=(a.label||"Alarm")+" — SNOOZE OVER";updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");playSound(a.sound,(settings.vol||100)/100,settings.fade);if(navigator.vibrate)navigator.vibrate([400,200,400])},5*60000)};
+function confetti(){const colors=["#ffb020","#ff7847","#3ddc84","#4da3ff","#b388ff"];for(let i=0;i<36;i++){const d=document.createElement("div");d.className="confetti";d.style.left=Math.random()*100+"vw";d.style.background=colors[i%5];d.style.animationDelay=(Math.random()*0.5)+"s";document.body.appendChild(d);setTimeout(()=>d.remove(),3600)}}
+$("#btnDismiss").onclick=()=>{if(!ringState||!ringState.missionDone)return;stopSound();clearGlow();$("#ringOverlay").classList.remove("open");$("#ringOverlay").classList.remove("flashon");confetti();
  const late=(Date.now()-ringState.firedAt.getTime())/60000;const onTime=late<=10+ringState.snoozes*5;
  log.unshift({type:"wake",when:new Date().toISOString(),label:ringState.alarm.label||ringState.alarm.time,onTime}); 
  const td=todayStr();if(onTime&&streak.last!==td){const y=new Date();y.setDate(y.getDate()-1);streak.count=streak.last===todayStr(y)?streak.count+1:1;streak.last=td}
@@ -406,6 +518,57 @@ $("#btnCloseIOS").onclick=()=>$("#iosModal").classList.remove("open");
 if(window.matchMedia("(display-mode: standalone)").matches)$("#installDone").style.display="block";
 /* ---------- SW ---------- */
 if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{})}
+
+/* ---------- EXTRAS (v2) ---------- */
+const JBQ=["“I feel good — like I knew that I would.” Rise like it.","Get up offa that thing — and dance 'til you feel better. Starting with getting OUT of bed.","The Godfather didn't snooze his way to the top. Neither will you.","Hardest working man in show business started by showing up. On time.","Funk is about the ONE — the first beat. Your one is your wake time. Hit it."];
+const AFF=["Today I get up on the first alarm.","Shift starts at 3 — I start winning at wake-up.","One alarm. No snooze. Done.","My family counts on me. I count on my routine.","Feet on the floor = day already won."];
+(function(){const d=new Date().getDate();$("#jbQuote").textContent=JBQ[d%JBQ.length];$("#affirm").textContent="💪🏾 Affirmation: "+AFF[d%AFF.length]})();
+/* nap + test + day off */
+function inMinutes(min,label){const d=new Date(Date.now()+min*60000);const t=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");alarms.push({id:Date.now(),time:t,label:label,days:[0,1,2,3,4,5,6],sound:"funk1",mission:"none",snoozeMax:1,on:true,skipNext:false,once:true});saveAll();renderAlarms();toast(label+" set for "+fmt12(t)+" 😴")}
+$$("[data-nap]").forEach(b=>b.onclick=()=>inMinutes(+b.dataset.nap,"Nap "+b.dataset.nap+" min"));
+$("#btnTest10").onclick=()=>{toast("Test alarm fires in 10 seconds…");setTimeout(()=>{const a={id:999,time:"00:00",label:"TEST — GetOnUp check",sound:"funk1",mission:"math",snoozeMax:1};ringState={alarm:a,snoozes:0,firedAt:new Date(),missionDone:false};$("#ringLabel").textContent=a.label;$("#ringTime").textContent="🧪";updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");playSound(a.sound,(settings.vol||100)/100,settings.fade)},10000)};
+$("#btnDayOff").onclick=()=>{alarms.forEach(a=>{if(a.on)a.skipNext=true});saveAll();renderAlarms();toast("🌴 All alarms skip their next firing — enjoy the day off")};
+/* sleep sounds */
+let ssNodes=null,ssTimerId=null;
+function stopSleepSounds(){if(ssNodes){ssNodes.forEach(n=>{try{n.stop?n.stop():n.disconnect()}catch(e){}});ssNodes=null}if(ssTimerId){clearTimeout(ssTimerId);ssTimerId=null}}
+$("#btnSSPlay").onclick=()=>{stopSleepSounds();const c=ctx();const kind=$("#ssSound").value;const len=c.sampleRate*3,buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);let last=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;if(kind==="brown"||kind==="fan"){last=(last+0.02*w)/1.02;d[i]=last*3.2}else if(kind==="ocean"){d[i]=w*(0.4+0.6*Math.abs(Math.sin(i/len*Math.PI*3)))}else{d[i]=w*0.5}}
+ const src=c.createBufferSource();src.buffer=buf;src.loop=true;const f=c.createBiquadFilter();f.type="lowpass";f.frequency.value=kind==="rain"?900:kind==="fan"?400:600;const g=c.createGain();g.gain.value=kind==="fan"?0.25:0.16;src.connect(f).connect(g).connect(c.destination);src.start();ssNodes=[src,g];const mins=+$("#ssTimer").value;if(mins>0)ssTimerId=setTimeout(stopSleepSounds,mins*60000);toast("🎧 Sleep sounds on")};
+$("#btnSSStop").onclick=()=>{stopSleepSounds();toast("Sleep sounds off")};
+/* breathing */
+let breathIv=null,breathTO=null;
+$("#btnBreathStart").onclick=()=>{const cEl=$("#breathCircle");let phase=0;const phases=[["Breathe in…",1],["Hold…",1],["Let it go…",0.55]];const step=()=>{const[p,s]=phases[phase%3];cEl.textContent=p;cEl.style.transform="scale("+s+")";phase++};step();breathIv=setInterval(step,4000);breathTO=setTimeout(()=>{$("#btnBreathStop").click();toast("🫁 Wind-down done — good night 🌙")},120000)};
+$("#btnBreathStop").onclick=()=>{if(breathIv)clearInterval(breathIv);if(breathTO)clearTimeout(breathTO);breathIv=null;const cEl=$("#breathCircle");cEl.textContent="Ready";cEl.style.transform="scale(1)"};
+/* checklists */
+const WIND=[["📱","Screens down / phone charging across the room"],["👕","Tomorrow's clothes laid out"],["🎒","Work bag + lunch ready"],["⏰","Alarm on + media volume UP"],["🪥","Teeth, wash up"],["💡","Lights low, room cool & dark"]];
+const PREP=[["👔","Work clothes + badge"],["🥪","Lunch packed"],["🔑","Keys by the door"],["⛽","Gas / ride checked"],["📱","Phone charged 100%"]];
+function renderChecks(elId,items,key){const el=$(elId);el.innerHTML=items.map((it,i)=>`<label class="check"><input type="checkbox" data-chk="${key}:${i}" ${settings.checks[key+":"+i]?"checked":""}><span>${it[0]} ${it[1]}</span></label>`).join("");el.querySelectorAll("[data-chk]").forEach(c=>c.onchange=()=>{settings.checks[c.dataset.chk]=c.checked;saveAll()})}
+renderChecks("#windList",WIND,"wind");renderChecks("#prepList",PREP,"prep");
+/* stats, badges, week */
+function renderStats(){const wakes=log.filter(e=>e.type==="wake");const on=wakes.filter(e=>e.onTime).length;const pct=wakes.length?Math.round(on/wakes.length*100):0;
+ $("#statsOut").innerHTML=`Wake-ups logged: <b>${wakes.length}</b> · On-time: <b>${pct}%</b> · Current streak: <b>${streak.count} days</b> 🔥 · Bedtimes logged: <b>${log.filter(e=>e.type==="bed").length}</b>`;
+ [3,7,14,30].forEach(n=>$("#badge"+n).classList.toggle("earned",streak.count>=n));
+ let out="";const seen=[];for(let add=0;add<7;add++){const d=new Date();d.setDate(d.getDate()+add);alarms.filter(a=>a.on&&a.days.includes(d.getDay())).forEach(a=>{out+=`<div class="logitem"><span>${d.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"})} — ${a.label||"Alarm"}</span><b>${fmt12(a.time)}${a.skipNext&&add===0?" ⏭️":""}</b></div>`})} 
+ $("#weekOut").innerHTML=out||'<p class="small">No alarms scheduled this week.</p>'}
+setInterval(renderStats,5000);
+/* customize */
+$("#volSlider").value=settings.vol||100;$("#glowSel").value=String(settings.glowMin||5);$("#diffSel").value=settings.diff||"easy";$("#flashSel").value=settings.flash||"off";$("#vibSel").value=settings.vib||"standard";
+$("#volSlider").oninput=e=>{settings.vol=+e.target.value;saveAll()};
+$("#glowSel").onchange=e=>{settings.glowMin=+e.target.value;saveAll();toast("Glow starts "+settings.glowMin+" min before 🌅")};
+$("#diffSel").onchange=e=>{settings.diff=e.target.value;saveAll()};
+$("#flashSel").onchange=e=>{settings.flash=e.target.value;saveAll()};
+$("#vibSel").onchange=e=>{settings.vib=e.target.value;saveAll();if(navigator.vibrate)navigator.vibrate(settings.vib==="funk"?[120,60,120,60,300]:[300])};
+const ACCENTS=[["gold","#ffb020","Gold"],["purple","#b388ff","Purple"],["green","#3ddc84","Green"],["blue","#4da3ff","Blue"]];
+function applyAccent(){const a=ACCENTS.find(x=>x[0]===settings.accent)||ACCENTS[0];document.documentElement.style.setProperty("--accent",a[1]);$("#btnAccent").textContent="🎨 Accent: "+a[2];document.body.classList.toggle("large",!!settings.large);$("#btnLarge").textContent="🔠 Large print: "+(settings.large?"On":"Off")}
+$("#btnAccent").onclick=()=>{const i=ACCENTS.findIndex(x=>x[0]===settings.accent);settings.accent=ACCENTS[(i+1)%ACCENTS.length][0];saveAll();applyAccent()};
+$("#btnLarge").onclick=()=>{settings.large=!settings.large;saveAll();applyAccent()};
+applyAccent();
+/* export / import */
+function download(name,content,type){const b=new Blob([content],{type});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+$("#btnExportLog").onclick=()=>{const csv="type,when,label,onTime\n"+log.map(e=>[e.type,e.when,(e.label||"").replace(/,/g," "),e.onTime].join(",")).join("\n");download("getonup-sleep-log.csv",csv,"text/csv");toast("Sleep log exported ⬇")};
+$("#btnExportAlarms").onclick=()=>{download("getonup-alarms.json",JSON.stringify(alarms,null,2),"application/json");toast("Alarms exported ⬇")};
+$("#importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const arr=JSON.parse(t);if(Array.isArray(arr)){alarms=arr;saveAll();renderAlarms();toast("Alarms imported 👍🏾")}else toast("That file is not an alarm list")}catch(err){toast("Import failed — bad JSON")}})};
+renderStats();
+
 renderAlarms();renderLog();
 </script>
 </body>
