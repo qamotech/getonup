@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GetOnUp — Alarm That Gets You UP</title>
+<meta name="description" content="GetOnUp: multiple alarms, pre-alarm volume boost, gradual wake, wake-up missions, snooze cap, sleep cycles, leave-by countdown and streaks.">
+<meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png?v=2" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{--bg:#0b1020;--bg2:#111830;--card:#171f3d;--card2:#1e2950;--text:#f4f7ff;--muted:#aab6dd;--accent:#ffb020;--accent2:#ff7847;--good:#3ddc84;--bad:#ff5470;--blue:#4da3ff;--purple:#b388ff;--border:#2c3866;--radius:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:linear-gradient(180deg,var(--bg),#0d1330 60%,#090d1d);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding-bottom:110px}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+header{position:sticky;top:0;z-index:40;background:rgba(11,16,32,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.logo{font-size:28px}
+header h1{font-size:22px;letter-spacing:.5px}
+header h1 span{color:var(--accent)}
+.tag{font-size:11px;color:var(--muted)}
+main{max-width:560px;margin:0 auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+.card h2{font-size:17px;margin-bottom:8px}
+.card h3{font-size:14px;margin:10px 0 6px;color:var(--accent)}
+.small{font-size:13px;color:var(--muted);line-height:1.5}
+.clock{font-size:56px;font-weight:800;text-align:center;letter-spacing:1px;line-height:1}
+.date{text-align:center;color:var(--muted);font-size:14px;margin-top:4px}
+.next{text-align:center;margin-top:10px;font-size:14px}
+.next b{color:var(--accent)}
+.countbig{font-size:34px;font-weight:800;text-align:center;color:var(--blue)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:14px;padding:13px 18px;font-size:16px;font-weight:700;background:var(--card2);color:var(--text);border:1px solid var(--border);width:100%;margin-top:8px}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1200;border:none}
+.btn.good{background:var(--good);color:#06280f;border:none}
+.btn.bad{background:var(--bad);color:#fff;border:none}
+.btn.smallb{width:auto;padding:9px 13px;font-size:14px;margin-top:0}
+.btn:active{transform:scale(.98)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1}
+label{font-size:13px;color:var(--muted);display:block;margin:10px 0 4px}
+input[type=time],input[type=text],input[type=number],select{width:100%;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:17px}
+.days{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.day{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-weight:700;font-size:13px}
+.day.on{background:var(--accent);color:#1a1200;border-color:var(--accent)}
+.alarm{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px;margin-top:10px}
+.alarm.off{opacity:.55}
+.atime{font-size:30px;font-weight:800;min-width:104px}
+.alabel{font-size:13px;color:var(--muted)}
+.switch{position:relative;width:54px;height:30px;flex:none;margin-left:auto}
+.switch input{opacity:0;width:100%;height:100%;position:absolute;cursor:pointer;z-index:2;margin:0}
+.knob{position:absolute;inset:0;background:#39406b;border-radius:99px;transition:.2s}
+.knob:before{content:"";position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
+.switch input:checked + .knob{background:var(--good)}
+.switch input:checked + .knob:before{left:27px}
+.iconbtn{background:none;border:none;color:var(--muted);font-size:19px;padding:6px}
+.streak{font-size:40px;text-align:center}
+.streak b{color:var(--accent)}
+.logitem{display:flex;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-top:7px;font-size:14px}
+.timeline{margin-top:8px}
+.tstep{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--border);font-size:15px}
+.tstep.done{color:var(--good);text-decoration:line-through}
+.modal{position:fixed;inset:0;background:rgba(3,5,12,.9);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:20px;border:1px solid var(--border)}
+#ringOverlay{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 35%,#3a2a05,#0b1020 75%)}
+#ringOverlay.open{display:flex}
+#glow{position:fixed;inset:0;z-index:150;pointer-events:none;background:radial-gradient(circle at 50% 100%,rgba(255,176,32,.85),rgba(255,120,71,.35) 55%,transparent 80%);opacity:0}
+.ringtime{font-size:74px;font-weight:900;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.shake{animation:shake .45s infinite}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.target{position:absolute;width:74px;height:74px;border-radius:50%;background:radial-gradient(circle,var(--accent),var(--accent2));border:3px solid #fff;font-size:30px;display:flex;align-items:center;justify-content:center}
+#targetArea{position:relative;height:300px;background:var(--bg2);border-radius:14px;overflow:hidden;margin-top:10px}
+.mathq{font-size:42px;font-weight:800;text-align:center;margin:14px 0}
+.installbox{background:linear-gradient(135deg,#1d2a5e,#3a2405);border:1px solid var(--accent);border-radius:var(--radius);padding:18px;margin-bottom:14px;text-align:center}
+.installbox h2{font-size:20px}
+.help{background:var(--bg2);border-left:4px solid var(--accent);border-radius:10px;padding:12px;font-size:14px;line-height:1.55;margin-top:10px}
+.chip{display:inline-block;background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:5px 11px;font-size:12px;margin:3px 2px;color:var(--muted)}
+.cycle{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:11px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:15px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;background:var(--good);color:#06280f;font-weight:800;padding:12px 20px;border-radius:99px;z-index:300;display:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,16,32,.96);border-top:1px solid var(--border);display:flex;z-index:50;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+nav button{flex:1;background:none;border:none;color:var(--muted);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .ni{font-size:21px}
+nav button.on{color:var(--accent)}
+.page{display:none}.page.on{display:block}
+.progress{height:12px;background:var(--bg2);border-radius:99px;overflow:hidden;margin-top:8px}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));width:0%}
+</style>
+</head>
+<body>
+<div id="glow"></div>
+<header><div class="logo">⏰</div><div><h1>Get<span>On</span>Up</h1><div class="tag">The alarm that gets you UP 👍🏾</div></div><div style="margin-left:auto;font-size:22px">🔥 <b id="streakTop">0</b></div></header>
+
+<main>
+<!-- HOME -->
+<section class="page on" id="page-home">
+  <div class="card">
+    <div class="clock" id="clock">--:--</div>
+    <div class="date" id="dateLine"></div>
+    <div class="next" id="nextAlarm">No alarms on</div>
+  </div>
+
+  <div class="installbox" id="installBox">
+    <h2>📲 Install GetOnUp</h2>
+    <p class="small" style="margin:6px 0 4px">Put GetOnUp on your home screen — works like a real app, offline too.</p>
+    <button class="btn primary" id="btnInstallAndroid">🤖 Install on Android</button>
+    <button class="btn" id="btnInstallIOS">🍎 Install on iPhone / iPad</button>
+    <p class="small" id="installDone" style="display:none;color:var(--good);font-weight:700">✅ GetOnUp is installed — open it from your home screen!</p>
+  </div>
+
+  <div class="card">
+    <h2>🌙 Bedtime Countdown</h2>
+    <div class="countbig" id="bedCount">--:--:--</div>
+    <p class="small" style="text-align:center" id="bedMsg">Set your target bedtime below.</p>
+    <label>Target bedtime</label>
+    <input type="time" id="bedtimeInput">
+    <button class="btn smallb" id="btnBedLog" style="width:100%;margin-top:10px">😴 I'm in bed now — log it</button>
+  </div>
+
+  <div class="card">
+    <h2>🚗 Leave-By Countdown</h2>
+    <div class="countbig" id="leaveCount" style="color:var(--accent)">--:--:--</div>
+    <p class="small" style="text-align:center" id="leaveMsg">Counts down to your leave-for-work time.</p>
+    <label>Leave for work at</label>
+    <input type="time" id="leaveInput">
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <div class="card">
+    <h2>🔥 Streaks &amp; Sleep Log</h2>
+    <div class="streak">🔥 <b id="streakNum">0</b> day streak</div>
+    <p class="small" style="text-align:center">Wake up on time (dismiss within 10 min) to keep the streak alive.</p>
+    <div class="row">
+      <button class="btn smallb" id="btnWakeLog">🌅 Log wake-up now</button>
+      <button class="btn smallb" id="btnClearLog">Clear log</button>
+    </div>
+    <div id="sleepLog"></div>
+  </div>
+</section>
+
+<!-- ALARMS -->
+<section class="page" id="page-alarms">
+  <div class="card">
+    <h2>⏰ My Alarms</h2>
+    <div id="alarmList"></div>
+    <button class="btn primary" id="btnAdd">＋ Add Alarm</button>
+  </div>
+  <div class="card">
+    <h2>📅 Schedule Sets</h2>
+    <p class="small">One tap builds a full set. Great for shift work.</p>
+    <button class="btn" data-set="weekday">💼 Weekday Set — Mon–Fri · 2:00 AM (Arc Beverage shift)</button>
+    <button class="btn" data-set="weekend">🌴 Weekend Set — Sat–Sun · 7:30 AM</button>
+    <button class="btn" data-set="daily">📆 Every Day — 5:00 AM</button>
+    <p class="small" style="margin-top:8px">Each alarm also has a <b>Skip next</b> button — tap it on a day off and that one firing is skipped, then it turns itself back on.</p>
+  </div>
+  <div class="card">
+    <h2>🔊 Pre-Alarm Volume Boost</h2>
+    <p class="small">About <b>1 minute before</b> your alarm, GetOnUp plays a rising “volume check” tone that climbs to full, then your alarm fades in and plays at <b>full in-app volume</b>.</p>
+    <div class="help"><b>Honest truth:</b> a web app <b>cannot</b> change your phone's system volume — no website can. So keep your <b>media volume up</b> and Do Not Disturb off (or allow GetOnUp). GetOnUp plays at full in-app volume, every time. 👍🏾</div>
+    <label>Fade-in ramp</label>
+    <select id="fadeSel"><option value="0">No fade — full blast instantly</option><option value="5">Gentle — 5 seconds</option><option value="10" selected>Standard — 10 seconds</option><option value="20">Slow sunrise — 20 seconds</option></select>
+    <button class="btn" id="btnTestBoost">🔊 Test the volume boost</button>
+  </div>
+</section>
+
+<!-- SMART -->
+<section class="page" id="page-smart">
+  <div class="card">
+    <h2>😴 Sleep-Cycle Smart Set</h2>
+    <p class="small">Sleep runs in ~90-minute cycles. Wake at the <b>end</b> of a cycle and you get up clear instead of groggy. We add 14 minutes to fall asleep.</p>
+    <label>I need to wake up at</label>
+    <input type="time" id="cycleWake" value="02:00">
+    <button class="btn primary" id="btnCyclesFromWake">🌙 What time should I go to bed?</button>
+    <div id="cycleOut1"></div>
+    <label style="margin-top:16px">I'm going to bed at</label>
+    <input type="time" id="cycleBed" value="21:30">
+    <button class="btn primary" id="btnCyclesFromBed">🌅 What time should I wake up?</button>
+    <div id="cycleOut2"></div>
+  </div>
+  <div class="card">
+    <h2>🌅 Gradual Wake</h2>
+    <p class="small">In the <b>5 minutes before</b> your alarm, the screen glow slowly brightens like a sunrise. In the last minute the volume-check tone rises, then the alarm fades in gently before hitting full volume. No jolt — just UP.</p>
+    <span class="chip">Glow starts: 5 min before</span><span class="chip">Volume check: 1 min before</span><span class="chip">Full alarm: on time</span>
+  </div>
+  <div class="card">
+    <h2>🧮 Wake-Up Missions &amp; ⏱️ Snooze Cap</h2>
+    <p class="small">Turn on a mission per alarm and it <b>can't be dismissed half-asleep</b> — solve a quick math problem or tap all the targets first.</p>
+    <p class="small" style="margin-top:6px">Snooze is capped per alarm (default <b>2 snoozes × 5 min</b>). Hit the cap and it's mission-only — no more snooze button.</p>
+    <button class="btn" id="btnDemoMission">🧮 Try a demo mission</button>
+  </div>
+</section>
+
+<!-- HELP -->
+<section class="page" id="page-help">
+  <div class="card">
+    <h2>❓ How GetOnUp Works</h2>
+    <div class="help"><b>Keep GetOnUp open (or recently opened) and your media volume UP.</b> A web app cannot change your phone's system volume and can't ring reliably if the phone kills the browser completely — that's true for every web alarm. For your 3 AM shift, open GetOnUp at bedtime and leave it on the charger. 👍🏾</div>
+    <h3>📲 Installing</h3>
+    <p class="small"><b>Android:</b> tap “Install on Android” and accept the prompt (or Chrome menu ⋮ → Install app).<br><b>iPhone:</b> Safari → Share ⬆️ → “Add to Home Screen” → Add.</p>
+    <h3>🔊 Sounds</h3>
+    <p class="small">Every sound is built live with layered WebAudio instruments — bells, bass, harmony and rhythm — no bland beeps, no robot voices.</p>
+    <h3>💾 Your data</h3>
+    <p class="small">Alarms, settings, streaks and your sleep log live only in this phone's local storage. No accounts, nothing uploaded, nothing posted.</p>
+    <button class="btn bad" id="btnReset">Reset everything</button>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button data-page="home" class="on"><span class="ni">🏠</span>Home</button>
+  <button data-page="alarms"><span class="ni">⏰</span>Alarms</button>
+  <button data-page="smart"><span class="ni">😴</span>Smart Sleep</button>
+  <button data-page="help"><span class="ni">❓</span>Help</button>
+</nav>
+
+<!-- EDITOR -->
+<div class="modal" id="editor"><div class="sheet">
+  <h2 id="edTitle">New Alarm</h2>
+  <label>Time</label><input type="time" id="edTime" value="02:00">
+  <label>Label</label><input type="text" id="edLabel" placeholder="e.g. Get up for work">
+  <label>Repeat days</label><div class="days" id="edDays"></div>
+  <label>Sound</label><select id="edSound"></select>
+  <button class="btn" id="btnPreview">▶ Preview sound</button>
+  <label>Wake-up mission</label>
+  <select id="edMission"><option value="none">None — normal dismiss</option><option value="math">🧮 Math problem</option><option value="targets">🎯 Tap the targets</option></select>
+  <label>Max snoozes (5 min each)</label>
+  <select id="edSnooze"><option value="0">0 — no snooze</option><option value="1">1</option><option value="2" selected>2 (default)</option><option value="3">3</option><option value="5">5</option></select>
+  <div class="row" style="margin-top:14px"><button class="btn primary" id="btnSaveAlarm">Save Alarm</button><button class="btn" id="btnCancelEdit">Cancel</button></div>
+  <button class="btn bad" id="btnDeleteAlarm" style="display:none">Delete Alarm</button>
+</div></div>
+
+<!-- iOS INSTALL -->
+<div class="modal" id="iosModal"><div class="sheet">
+  <h2>🍎 Install on iPhone / iPad</h2>
+  <p class="small" style="font-size:15px;line-height:1.9;margin-top:8px">1️⃣ Open GetOnUp in <b>Safari</b><br>2️⃣ Tap the <b>Share</b> button ⬆️ (bottom bar)<br>3️⃣ Scroll and tap <b>“Add to Home Screen”</b><br>4️⃣ Tap <b>Add</b> — done! ⏰<br><br>GetOnUp now sits on your home screen and opens full-screen like a real app.</p>
+  <button class="btn primary" id="btnCloseIOS" style="margin-top:12px">Got it 👍🏾</button>
+</div></div>
+
+<!-- RING -->
+<div id="ringOverlay">
+  <div style="font-size:20px;color:var(--accent);font-weight:700" id="ringLabel">Alarm</div>
+  <div class="ringtime" id="ringTime">2:00</div>
+  <div style="font-size:44px" class="shake">⏰💪🏾</div>
+  <p class="small" id="ringMsg" style="max-width:320px;margin-top:8px"></p>
+  <div id="missionArea" style="width:100%;max-width:420px"></div>
+  <button class="btn good" id="btnDismiss" style="max-width:420px;font-size:19px;padding:17px">✅ I'm UP — Dismiss</button>
+  <button class="btn" id="btnSnooze" style="max-width:420px">😴 Snooze 5 min (<span id="snoozeLeft">2</span> left)</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const LS={get(k,d){try{const v=localStorage.getItem("getonup_"+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem("getonup_"+k,JSON.stringify(v))}catch(e){}}};
+let alarms=LS.get("alarms",[{id:1,time:"02:00",label:"Get up — Arc Beverage shift",days:[1,2,3,4,5],sound:"energize",mission:"math",snoozeMax:2,on:true,skipNext:false,group:"Weekday"}]);
+let settings=LS.get("settings",{bedtime:"21:30",leave:"02:20",fade:10});
+let log=LS.get("log",[]); let streak=LS.get("streak",{count:0,last:""});
+let editId=null, deferredPrompt=null, audioCtx=null, ringState=null, snoozeTimer=null;
+const SOUNDS=[
+ {id:"energize",name:"⚡ Energize — upbeat pop rise"},
+ {id:"bells",name:"🔔 Bell Tower — big clear bells"},
+ {id:"sunrise",name:"🌅 Sunrise — warm major arpeggio"},
+ {id:"piano",name:"🎹 Morning Piano — chords & melody"},
+ {id:"ocean",name:"🌊 Ocean Rise — swell + soft notes"},
+ {id:"rooster",name:"🐓 Rooster Synth — playful & loud"}];
+const DAYN=["S","M","T","W","T","F","S"], DAYFULL=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function saveAll(){LS.set("alarms",alarms);LS.set("settings",settings);LS.set("log",log);LS.set("streak",streak)}
+function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2600)}
+function fmt12(t){let[h,m]=t.split(":").map(Number);const ap=h>=12?"PM":"AM";h=h%12||12;return h+":"+String(m).padStart(2,"0")+" "+ap}
+function todayStr(d){return (d||new Date()).toISOString().slice(0,10)}
+/* ---------- AUDIO: layered WebAudio instruments ---------- */
+function ctx(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx}
+function tone(c,f,t0,dur,type,vol,slideTo){const o=c.createOscillator(),g=c.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f,t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+0.02);g.gain.exponentialRampToValueAtTime(0.001,t0+dur);o.connect(g).connect(c.destination);o.start(t0);o.stop(t0+dur+0.05);return g}
+function bell(c,f,t0,dur,vol){tone(c,f,t0,dur,"sine",vol);tone(c,f*2.76,t0,dur*0.6,"sine",vol*0.35);tone(c,f*5.4,t0,dur*0.3,"sine",vol*0.12)}
+function noiseSwell(c,t0,dur,vol){const len=c.sampleRate*dur,buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-Math.abs(i/len-0.5)*1.4);const src=c.createBufferSource();src.buffer=buf;const fl=c.createBiquadFilter();fl.type="lowpass";fl.frequency.setValueAtTime(300,t0);fl.frequency.linearRampToValueAtTime(1400,t0+dur);const g=c.createGain();g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+dur*0.5);g.gain.linearRampToValueAtTime(0,t0+dur);src.connect(fl).connect(g).connect(c.destination);src.start(t0)}
+const MELODIES={
+ energize:{bpm:132,play(c,t,v){const N=[523,659,784,1047,784,659,784,1319];N.forEach((f,i)=>{tone(c,f,t+i*0.22,"triangle",0.5*v);tone(c,f/2,t+i*0.22,0.3,"sine",0.3*v)});[131,165,196,262].forEach((f,i)=>tone(c,f,t+i*0.44,0.4,"square",0.10*v))}},
+ bells:{bpm:100,play(c,t,v){[1047,784,659,784,1047,1319].forEach((f,i)=>bell(c,f,t+i*0.34,1.1,0.5*v));bell(c,262,t,2.4,0.25*v)}},
+ sunrise:{bpm:110,play(c,t,v){[262,330,392,523,659,784].forEach((f,i)=>{tone(c,f,t+i*0.26,0.9,"triangle",0.4*v);tone(c,f*2,t+i*0.26,0.5,"sine",0.12*v)});[131,196].forEach((f,i)=>tone(c,f,t+i*1.0,1.4,"sine",0.3*v))}},
+ piano:{bpm:96,play(c,t,v){const ch=[[262,330,392],[349,440,523],[392,494,587],[262,330,392]];ch.forEach((chord,i)=>chord.forEach(f=>tone(c,f,t+i*0.8,1.3,"triangle",0.30*v)));[523,659,784,659].forEach((f,i)=>tone(c,f,t+i*0.4,0.7,"sine",0.35*v))}},
+ ocean:{bpm:90,play(c,t,v){noiseSwell(c,t,2.6,0.30*v);[392,494,587,494].forEach((f,i)=>tone(c,f,t+0.3+i*0.55,1.0,"sine",0.32*v))}},
+ rooster:{bpm:120,play(c,t,v){for(let r=0;r<2;r++){const s=t+r*1.1;tone(c,700,s,0.16,"sawtooth",0.22*v,1200);tone(c,900,s+0.2,0.16,"sawtooth",0.22*v,1500);tone(c,800,s+0.42,0.5,"sawtooth",0.28*v,1900)}tone(c,196,t,2.2,"square",0.08*v)}}
+};
+let playTimer=null, masterGainNodes=[];
+function playSound(id,vol,fadeSec){stopSound();const c=ctx();let v=vol==null?1:vol;const dur=2.8;const start=c.currentTime+0.05;
+ if(fadeSec>0){let step=0;const steps=Math.max(1,Math.round(fadeSec/ (dur/ (1000/1000) )));}
+ const loop=()=>{MELODIES[id].play(c,c.currentTime+0.03,currentVol);scheduleNext()};
+ let currentVol=fadeSec>0?0.05:v; const fadeStart=Date.now();
+ function scheduleNext(){playTimer=setTimeout(()=>{if(fadeSec>0){const el=(Date.now()-fadeStart)/1000;currentVol=Math.min(v,0.05+(v-0.05)*(el/fadeSec))}loop()},dur*1000)}
+ MELODIES[id].play(c,start,currentVol); scheduleNext();
+ return {setVol(x){currentVol=x}}}
+function stopSound(){if(playTimer){clearTimeout(playTimer);playTimer=null}}
+function previewSound(id){const h=playSound(id,0.9,0);setTimeout(stopSound,5600);toast("Playing preview — tap another or wait to stop")}
+/* volume check rising tone */
+function volumeCheck(done){const c=ctx();const t=c.currentTime+0.05;for(let i=0;i<8;i++){const f=440+i*70;tone(c,f,t+i*0.35,0.32,"triangle",0.12+ i*0.11)}setTimeout(done,3000)}
+/* ---------- NAV ---------- */
+$$("nav button").forEach(b=>b.onclick=()=>{$$("nav button").forEach(x=>x.classList.remove("on"));b.classList.add("on");$$(".page").forEach(p=>p.classList.remove("on"));$("#page-"+b.dataset.page).classList.add("on");window.scrollTo(0,0)});
+/* ---------- ALARM LIST ---------- */
+function renderAlarms(){const el=$("#alarmList");if(!alarms.length){el.innerHTML='<p class="small">No alarms yet — tap Add Alarm.</p>';return}
+ el.innerHTML=alarms.map(a=>`<div class="alarm ${a.on?"":"off"}"><div><div class="atime">${fmt12(a.time)}</div><div class="alabel">${a.label||"Alarm"} · ${a.days.length===7?"Every day":a.days.map(d=>DAYFULL[d]).join(" ")}<br>${SOUNDS.find(s=>s.id===a.sound).name.split("—")[0]} ${a.mission!=="none"?"· 🧮 mission":""} · snooze ×${a.snoozeMax}${a.skipNext?" · ⏭️ <b style='color:var(--accent)'>next skipped</b>":""}</div></div>
+ <button class="iconbtn" data-skip="${a.id}" title="Skip next">⏭️</button><button class="iconbtn" data-edit="${a.id}">✏️</button>
+ <label class="switch"><input type="checkbox" data-toggle="${a.id}" ${a.on?"checked":""}><span class="knob"></span></label></div>`).join("");
+ el.querySelectorAll("[data-toggle]").forEach(t=>t.onchange=()=>{const a=alarms.find(x=>x.id==t.dataset.toggle);a.on=t.checked;saveAll();renderAlarms();toast(a.on?"Alarm ON ⏰":"Alarm off")});
+ el.querySelectorAll("[data-edit]").forEach(t=>t.onclick=()=>openEditor(+t.dataset.edit));
+ el.querySelectorAll("[data-skip]").forEach(t=>t.onclick=()=>{const a=alarms.find(x=>x.id==t.dataset.skip);a.skipNext=!a.skipNext;saveAll();renderAlarms();toast(a.skipNext?"⏭️ Next firing will be skipped":"Skip cancelled")});}
+/* ---------- EDITOR ---------- */
+let edDays=new Set([1,2,3,4,5]);
+function renderEdDays(){$("#edDays").innerHTML=DAYFULL.map((d,i)=>`<button class="day ${edDays.has(i)?"on":""}" data-d="${i}">${DAYN[i]}</button>`).join("");$$("#edDays .day").forEach(b=>b.onclick=e=>{e.preventDefault();const d=+b.dataset.d;edDays.has(d)?edDays.delete(d):edDays.add(d);renderEdDays()})}
+function openEditor(id){editId=id||null;$("#edSound").innerHTML=SOUNDS.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
+ if(id){const a=alarms.find(x=>x.id===id);$("#edTitle").textContent="Edit Alarm";$("#edTime").value=a.time;$("#edLabel").value=a.label;$("#edSound").value=a.sound;$("#edMission").value=a.mission;$("#edSnooze").value=String(a.snoozeMax);edDays=new Set(a.days);$("#btnDeleteAlarm").style.display="block"}
+ else{$("#edTitle").textContent="New Alarm";$("#edTime").value="02:00";$("#edLabel").value="";$("#edMission").value="math";$("#edSnooze").value="2";edDays=new Set([1,2,3,4,5]);$("#btnDeleteAlarm").style.display="none"}
+ renderEdDays();$("#editor").classList.add("open")}
+$("#btnAdd").onclick=()=>openEditor(null);
+$("#btnCancelEdit").onclick=()=>{$("#editor").classList.remove("open");stopSound()};
+$("#btnPreview").onclick=()=>previewSound($("#edSound").value);
+$("#btnSaveAlarm").onclick=()=>{const data={time:$("#edTime").value||"02:00",label:$("#edLabel").value.trim(),days:[...edDays].sort(),sound:$("#edSound").value,mission:$("#edMission").value,snoozeMax:+$("#edSnooze").value,on:true,skipNext:false};
+ if(!data.days.length){toast("Pick at least one day");return}
+ if(editId){Object.assign(alarms.find(x=>x.id===editId),data)}else{alarms.push({id:Date.now(),...data})}
+ saveAll();renderAlarms();$("#editor").classList.remove("open");stopSound();toast("Alarm saved 👍🏾")};
+$("#btnDeleteAlarm").onclick=()=>{alarms=alarms.filter(x=>x.id!==editId);saveAll();renderAlarms();$("#editor").classList.remove("open");toast("Alarm deleted")};
+/* schedule sets */
+$$("[data-set]").forEach(b=>b.onclick=()=>{const k=b.dataset.set;const sets={weekday:{time:"02:00",label:"Get up — Arc Beverage shift",days:[1,2,3,4,5],group:"Weekday"},weekend:{time:"07:30",label:"Weekend wake-up",days:[0,6],group:"Weekend"},daily:{time:"05:00",label:"Daily wake-up",days:[0,1,2,3,4,5,6],group:"Daily"}};const s=sets[k];alarms.push({id:Date.now(),time:s.time,label:s.label,days:s.days,sound:"energize",mission:"math",snoozeMax:2,on:true,skipNext:false,group:s.group});saveAll();renderAlarms();toast(s.group+" set added 👍🏾");document.querySelector('[data-page="alarms"]').click()});
+/* ---------- SETTINGS ---------- */
+$("#bedtimeInput").value=settings.bedtime;$("#leaveInput").value=settings.leave;$("#fadeSel").value=String(settings.fade);
+$("#bedtimeInput").onchange=e=>{settings.bedtime=e.target.value;saveAll();toast("Bedtime saved 🌙")};
+$("#leaveInput").onchange=e=>{settings.leave=e.target.value;saveAll();renderTimeline();toast("Leave time saved 🚗")};
+$("#fadeSel").onchange=e=>{settings.fade=+e.target.value;saveAll()};
+$("#btnTestBoost").onclick=()=>{toast("Volume check in 3… get ready 🔊");setTimeout(()=>volumeCheck(()=>{const h=playSound("energize",1,settings.fade);setTimeout(stopSound,6000)}),1200)};
+/* timeline */
+const STEPS=[["🌅","Wake up",0],["🚿","Shower & freshen up",10],["👕","Get dressed",10],["🍳","Breakfast & coffee",15],["🎒","Bag, keys, lunch check",10],["🚗","Out the door",5]];
+function renderTimeline(){const leave=settings.leave;let[h,m]=leave.split(":").map(Number);const leaveMin=h*60+m;let acc=0;
+ $("#timeline").innerHTML=STEPS.map((s,i)=>{const t=leaveMin-(STEPS.slice(i).reduce((a,x)=>a+x[2],0));const hh=((Math.floor(t/60)%24)+24)%24,mm=((t%60)+60)%60;return `<div class="tstep" data-step="${i}"><span>${s[0]}</span><span style="flex:1">${s[1]}</span><b>${fmt12(String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0"))}</b><button class="iconbtn" data-done="${i}">✔️</button></div>`}).join("");
+ $$("#timeline [data-done]").forEach(b=>b.onclick=()=>b.parentElement.classList.toggle("done"))}
+renderTimeline();
+/* ---------- CLOCK / COUNTDOWNS / SCHEDULER ---------- */
+function nextOccurrence(a,from){const now=from||new Date();for(let add=0;add<8;add++){const d=new Date(now);d.setDate(d.getDate()+add);const[h,m]=a.time.split(":").map(Number);d.setHours(h,m,0,0);if(d>now&&a.days.includes(d.getDay()))return d}return null}
+function nextAlarmDate(){let best=null,ba=null;alarms.filter(a=>a.on).forEach(a=>{const d=nextOccurrence(a);if(d&&(!best||d<best)){best=d;ba=a}});return{date:best,alarm:ba}}
+function msToHMS(ms){if(ms<0)ms=0;const s=Math.floor(ms/1000);return String(Math.floor(s/3600)).padStart(2,"0")+":"+String(Math.floor(s%3600/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+let firedKeys=new Set(), preKeys=new Set(), glowKeys=new Set();
+function tick(){const now=new Date();
+ $("#clock").textContent=now.toLocaleTimeString([], {hour:"numeric",minute:"2-digit",second:"2-digit"});
+ $("#dateLine").textContent=now.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"});
+ const{date,alarm}=nextAlarmDate();
+ $("#nextAlarm").innerHTML=date?`Next alarm: <b>${alarm.label||"Alarm"} · ${fmt12(alarm.time)}</b> (${alarm.skipNext?"⏭️ will be skipped":msToHMS(date-now)+" away"})`:"No alarms on — add one in Alarms ⏰";
+ /* bedtime countdown */
+ const bt=new Date(now);const[bh,bm]=settings.bedtime.split(":").map(Number);bt.setHours(bh,bm,0,0);if(bt<now)bt.setDate(bt.getDate()+1);
+ const bms=bt-now;$("#bedCount").textContent=msToHMS(bms);
+ $("#bedMsg").textContent=bms<15*60000?"🌙 Screens down in "+Math.max(0,Math.round(bms/60000))+" — wind down now, screens off, lights low.":bms<60*60000?"🌙 Bedtime in under an hour — wrap up, lay out tomorrow's clothes.":"Bedtime at "+fmt12(settings.bedtime)+" — you've got time, make it count.";
+ /* leave countdown */
+ const lv=new Date(now);const[lh,lm]=settings.leave.split(":").map(Number);lv.setHours(lh,lm,0,0);if(lv<now)lv.setDate(lv.getDate()+1);
+ $("#leaveCount").textContent=msToHMS(lv-now);$("#leaveMsg").textContent="Leave at "+fmt12(settings.leave)+" for your shift 🚗";
+ /* scheduler */
+ alarms.filter(a=>a.on).forEach(a=>{const d=nextOccurrence(a, new Date(now.getTime()-6*60000));if(!d)return;const key=a.id+"_"+d.toDateString()+"_"+a.time;const diff=d-now;
+  if(diff<=5*60000&&diff>60000&&!glowKeys.has(key)){glowKeys.add(key);startGlow()}
+  if(diff<=65000&&diff>55000&&!preKeys.has(key)){preKeys.add(key);toast("🔊 Volume check — alarm in 1 minute");volumeCheck(()=>{})}
+  if(diff<=1000&&diff>-30000&&!firedKeys.has(key)){firedKeys.add(key);fireAlarm(a)}})}
+setInterval(tick,500);tick();
+function startGlow(){const g=$("#glow");let o=0;const iv=setInterval(()=>{o+=0.02;g.style.opacity=Math.min(0.85,o);if(o>=0.85||ringState)clearInterval(iv)},600)}
+function clearGlow(){$("#glow").style.opacity=0}
+/* ---------- RINGING + MISSIONS + SNOOZE ---------- */
+function fireAlarm(a){if(a.skipNext){a.skipNext=false;saveAll();renderAlarms();toast("⏭️ Skipped: "+(a.label||a.time));return}
+ ringState={alarm:a,snoozes:0,firedAt:new Date(),missionDone:a.mission==="none"};
+ $("#ringLabel").textContent=a.label||"Alarm";$("#ringTime").textContent=fmt12(a.time);
+ $("#ringMsg").textContent=a.mission==="none"?"Time to get ON UP! 💪🏾":"Complete your mission to dismiss — no half-asleep kills. 🧮";
+ updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");clearGlow();
+ playSound(a.sound,1,settings.fade);if(navigator.vibrate)navigator.vibrate([400,200,400,200,800])}
+function updateSnoozeBtn(){const a=ringState.alarm;const left=a.snoozeMax-ringState.snoozes;$("#snoozeLeft").textContent=Math.max(0,left);$("#btnSnooze").style.display=left>0?"block":"none";if(left<=0)$("#ringMsg").textContent="Snooze cap hit — mission only now. You got this 💪🏾";$("#btnDismiss").style.display=ringState.missionDone?"block":"none"}
+function renderMission(){const area=$("#missionArea");const a=ringState?ringState.alarm:null;if(!a||a.mission==="none"){area.innerHTML="";return}
+ if(a.mission==="math"){const x=3+Math.floor(Math.random()*9),y=4+Math.floor(Math.random()*9),op=Math.random()<0.5?"+":"×";const ans=op==="+"?x+y:x*y;ringState.answer=ans;
+  area.innerHTML=`<div class="mathq">${x} ${op} ${y} = ?</div><input type="number" id="mathAns" placeholder="Your answer" style="text-align:center;font-size:22px"><button class="btn primary" id="btnMath">Check</button>`;
+  $("#btnMath").onclick=()=>{if(+$("#mathAns").value===ans){ringState.missionDone=true;area.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ Mission complete — now get UP!</p>';updateSnoozeBtn()}else{$("#mathAns").value="";$("#mathAns").placeholder="Try again 💪🏾"}}}
+ if(a.mission==="targets"){ringState.targetsHit=0;area.innerHTML=`<p class="small" style="margin-top:8px">Tap all <b>5 targets</b> — hit: <b id="tHit">0</b>/5</p><div id="targetArea"></div>`;spawnTarget()}}
+function spawnTarget(){const area=$("#targetArea");if(!area)return;area.innerHTML="";const t=document.createElement("button");t.className="target";t.textContent="🎯";t.style.left=Math.random()*70+"%";t.style.top=Math.random()*65+"%";t.onclick=()=>{ringState.targetsHit++;if(ringState.targetsHit>=5){ringState.missionDone=true;area.parentElement.innerHTML='<p style="color:var(--good);font-weight:800;font-size:19px;margin:12px 0">✅ Targets cleared — get UP!</p>';updateSnoozeBtn()}else{$("#tHit").textContent=ringState.targetsHit;spawnTarget()}};area.appendChild(t)}
+$("#btnSnooze").onclick=()=>{if(!ringState)return;ringState.snoozes++;stopSound();$("#ringOverlay").classList.remove("open");toast("😴 Snoozed 5 min ("+ringState.snoozes+"/"+ringState.alarm.snoozeMax+")");const a=ringState.alarm;snoozeTimer=setTimeout(()=>{ringState.missionDone=a.mission==="none";$("#ringLabel").textContent=(a.label||"Alarm")+" — SNOOZE OVER";updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open");playSound(a.sound,1,settings.fade);if(navigator.vibrate)navigator.vibrate([400,200,400])},5*60000)};
+$("#btnDismiss").onclick=()=>{if(!ringState||!ringState.missionDone)return;stopSound();clearGlow();$("#ringOverlay").classList.remove("open");
+ const late=(Date.now()-ringState.firedAt.getTime())/60000;const onTime=late<=10+ringState.snoozes*5;
+ log.unshift({type:"wake",when:new Date().toISOString(),label:ringState.alarm.label||ringState.alarm.time,onTime}); 
+ const td=todayStr();if(onTime&&streak.last!==td){const y=new Date();y.setDate(y.getDate()-1);streak.count=streak.last===todayStr(y)?streak.count+1:1;streak.last=td}
+ ringState=null;saveAll();renderLog();toast(onTime?"🌅 On time! Streak: "+streak.count+" 🔥":"Logged — tomorrow we beat it 💪🏾")};
+/* demo mission */
+$("#btnDemoMission").onclick=()=>{ringState={alarm:{label:"Demo Mission",time:"09:00",mission:Math.random()<0.5?"math":"targets",snoozeMax:0},snoozes:0,firedAt:new Date(),missionDone:false};$("#ringLabel").textContent="Demo Mission";$("#ringTime").textContent="🧮";updateSnoozeBtn();renderMission();$("#ringOverlay").classList.add("open")};
+/* ---------- SLEEP CYCLES ---------- */
+function addMin(t,mins){let[h,m]=t.split(":").map(Number);let tot=((h*60+m+mins)%1440+1440)%1440;return String(Math.floor(tot/60)).padStart(2,"0")+":"+String(tot%60).padStart(2,"0")}
+function cycleHTML(list,bestIdx,mode){return list.map((t,i)=>`<div class="cycle"><span>${mode==="bed"?"🌙 Bed at":"🌅 Wake at"} <b>${fmt12(t)}</b> · ${list.cycles[i]} cycles (${list.cycles[i]*1.5}h sleep)</span><button class="btn smallb" data-cycle="${t}|${mode}">${mode==="bed"?"Set alarm to wake":"Make alarm"}</button></div>`).join("")}
+$("#btnCyclesFromWake").onclick=()=>{const w=$("#cycleWake").value;const cycles=[6,5,4,3];const list=cycles.map(c=>addMin(w,-(c*90+14)));list.cycles=cycles;$("#cycleOut1").innerHTML='<p class="small" style="margin-top:8px">To wake at <b>'+fmt12(w)+'</b>, go to bed at:</p>'+list.map((t,i)=>`<div class="cycle"><span>🌙 <b>${fmt12(t)}</b> · ${cycles[i]} cycles (${cycles[i]*1.5}h) ${i===0?"⭐ best":""}</span><button class="btn smallb" data-mkalarm="${w}">Make ${fmt12(w)} alarm</button></div>`).join("");
+ $$("#cycleOut1 [data-mkalarm]").forEach(b=>b.onclick=()=>{alarms.push({id:Date.now(),time:w,label:"Smart cycle wake-up",days:[0,1,2,3,4,5,6],sound:"sunrise",mission:"math",snoozeMax:2,on:true,skipNext:false});saveAll();renderAlarms();toast("Smart alarm set 👍🏾")})};
+$("#btnCyclesFromBed").onclick=()=>{const bd=$("#cycleBed").value;const cycles=[3,4,5,6];$("#cycleOut2").innerHTML='<p class="small" style="margin-top:8px">In bed at <b>'+fmt12(bd)+'</b> — wake at:</p>'+cycles.map(c=>{const t=addMin(bd,c*90+14);return `<div class="cycle"><span>🌅 <b>${fmt12(t)}</b> · ${c} cycles (${c*1.5}h) ${c===5||c===6?"⭐":""}</span><button class="btn smallb" data-mkalarm2="${t}">Make alarm</button></div>`}).join("");
+ $$("#cycleOut2 [data-mkalarm2]").forEach(b=>b.onclick=()=>{alarms.push({id:Date.now(),time:b.dataset.mkalarm2,label:"Smart cycle wake-up",days:[0,1,2,3,4,5,6],sound:"sunrise",mission:"math",snoozeMax:2,on:true,skipNext:false});saveAll();renderAlarms();toast("Smart alarm set 👍🏾")})};
+/* ---------- LOG & STREAK ---------- */
+function renderLog(){$("#streakNum").textContent=streak.count;$("#streakTop").textContent=streak.count;
+ $("#sleepLog").innerHTML=log.slice(0,14).map(e=>{const d=new Date(e.when);return `<div class="logitem"><span>${e.type==="bed"?"😴 In bed":"🌅 Woke up"}${e.label?" · "+e.label:""}</span><span>${d.toLocaleDateString([], {month:"short",day:"numeric"})} ${d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})} ${e.onTime===true?"✅":e.onTime===false?"⏰":""}</span></div>`}).join("")||'<p class="small">No log yet — your bed & wake times will show here.</p>'}
+$("#btnBedLog").onclick=()=>{log.unshift({type:"bed",when:new Date().toISOString()});saveAll();renderLog();toast("😴 Bedtime logged — sleep well 🌙")};
+$("#btnWakeLog").onclick=()=>{log.unshift({type:"wake",when:new Date().toISOString(),onTime:true});const td=todayStr();if(streak.last!==td){const y=new Date();y.setDate(y.getDate()-1);streak.count=streak.last===todayStr(y)?streak.count+1:1;streak.last=td}saveAll();renderLog();toast("🌅 Wake-up logged — streak "+streak.count+" 🔥")};
+$("#btnClearLog").onclick=()=>{log=[];saveAll();renderLog();toast("Log cleared")};
+$("#btnReset").onclick=()=>{if(confirm("Reset ALL GetOnUp data?")){localStorage.removeItem("getonup_alarms");localStorage.removeItem("getonup_settings");localStorage.removeItem("getonup_log");localStorage.removeItem("getonup_streak");location.reload()}};
+/* ---------- INSTALL ---------- */
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e});
+window.addEventListener("appinstalled",()=>{$("#installDone").style.display="block";toast("GetOnUp installed 👍🏾")});
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+$("#btnInstallAndroid").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();const r=await deferredPrompt.userChoice;if(r.outcome==="accepted")$("#installDone").style.display="block";deferredPrompt=null}else{toast(isIOS?"Use the iPhone button below 🍎":"Open Chrome menu ⋮ → “Install app” / “Add to Home screen”")}};
+$("#btnInstallIOS").onclick=()=>$("#iosModal").classList.add("open");
+$("#btnCloseIOS").onclick=()=>$("#iosModal").classList.remove("open");
+if(window.matchMedia("(display-mode: standalone)").matches)$("#installDone").style.display="block";
+/* ---------- SW ---------- */
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{})}
+renderAlarms();renderLog();
+</script>
+</body>
+</html>

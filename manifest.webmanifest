@@ -1,0 +1,16 @@
+{
+  "name": "GetOnUp — Alarm That Gets You UP",
+  "short_name": "GetOnUp",
+  "description": "Multiple alarms, pre-alarm volume boost, gradual wake, wake-up missions, snooze cap, sleep cycles, leave-by countdown and streaks.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
